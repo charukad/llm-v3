@@ -188,14 +188,77 @@ async def process_workflow(input_data: WorkflowInput):
 async def process_text_workflow(
     text: str = Body(..., embed=True),
     context_id: Optional[str] = Body(None, embed=True),
-    conversation_id: Optional[str] = Body(None, embed=True)
+    conversation_id: Optional[str] = Body(None, embed=True),
+    debug: bool = Body(False, embed=True)
 ):
     """
     Process a text-based workflow.
     
     This endpoint is a simplified version of the process endpoint specifically for text input.
+    It has special handling for visualization requests to ensure reliability.
     """
     try:
+        logger.info(f"Received workflow request: {text[:50]}...")
+        
+        # Direct visualization handling first
+        if any(keyword in text.lower() for keyword in ["plot", "graph", "visualize", "chart", "draw", "show me"]):
+            logger.info("Detected potential visualization request, attempting direct handling")
+            try:
+                # Use the chat visualization endpoint directly
+                from api.rest.routes.chat_visualization import process_visualization_request
+                from fastapi import Request
+                
+                # Create a request object with the text
+                visualization_request = {"text": text, "generate_immediately": True}
+                
+                # Process the visualization request
+                visualization_result = await process_visualization_request(
+                    Request({"type": "http"}), 
+                    **visualization_request
+                )
+                
+                if visualization_result.get("is_visualization_request", False) and visualization_result.get("visualization", {}).get("success", False):
+                    # Return a successful workflow result with the visualization
+                    workflow_id = str(uuid.uuid4())
+                    logger.info(f"Created visualization workflow result directly: {workflow_id}")
+                    
+                    # Extract the visualization URL
+                    viz = visualization_result.get("visualization", {})
+                    viz_url = viz.get("url", "")
+                    
+                    result = {
+                        "workflow_id": workflow_id,
+                        "context_id": context_id or str(uuid.uuid4()),
+                        "conversation_id": conversation_id,
+                        "state": "completed",
+                        "message": "Workflow completed successfully",
+                        "result": {
+                            "success": True,
+                            "response": f"I've created a visualization based on your request. You can view it at: {viz_url}",
+                            "visualizations": [
+                                {
+                                    "file_path": viz.get("file_path"),
+                                    "url": viz_url,
+                                    "plot_type": visualization_result.get("plot_type")
+                                }
+                            ]
+                        }
+                    }
+                    
+                    # If debug mode, include all analysis details
+                    if debug:
+                        result["debug"] = {
+                            "visualization_result": visualization_result
+                        }
+                    
+                    return result
+            except Exception as viz_error:
+                logger.warning(f"Direct visualization handling failed: {str(viz_error)}")
+                import traceback
+                logger.warning(traceback.format_exc())
+        
+        # If not a visualization or visualization processing failed, continue with normal workflow
+        logger.info("Proceeding with standard workflow processing")
         # Create input data
         input_data = {
             "input_type": "text",
@@ -216,6 +279,8 @@ async def process_text_workflow(
         
     except Exception as e:
         logger.error(f"Error starting text workflow: {str(e)}")
+        import traceback
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=f"Error starting text workflow: {str(e)}")
 
 

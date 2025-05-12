@@ -11,7 +11,7 @@ from typing import Dict, Any, Optional
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-from api.rest.routes import math, multimodal
+from api.rest.routes import math, multimodal, chat_visualization
 from api.websocket.server import websocket_router
 from api.rest.routes.visualization import router as visualization_router
 from api.rest.routes.workflow import router as workflow_router
@@ -19,7 +19,7 @@ from api.rest.routes.query_analysis import router as query_analysis_router
 from api.rest.middlewares.error_handler import ErrorHandler
 from orchestration.workflow.workflow_engine import WorkflowEngine
 from orchestration.manager.orchestration_manager import OrchestrationManager, get_orchestration_manager
-from core.agent.llm_agent import CoreLLMAgent
+from core.agent.llm_agent import CoreLLMAgent, initialize_llm_agent
 from orchestration.agents.registry import get_agent_registry, register_core_agents
 
 # Configure logging
@@ -56,6 +56,7 @@ app.include_router(websocket_router)
 app.include_router(visualization_router)
 app.include_router(workflow_router)
 app.include_router(query_analysis_router)
+app.include_router(chat_visualization.router)
 
 # Initialize workflow engine and orchestration manager
 workflow_engine = None
@@ -64,6 +65,13 @@ core_llm_agent = None
 
 # Create a dictionary to store agent instances
 agent_instances = {}
+
+# Add default app configuration
+app_config = {
+    "initialize_agents": True,
+    "initialize_viz_agent": True,
+    "initialize_chat_analysis_agent": True
+}
 
 @app.on_event("startup")
 async def startup_event():
@@ -101,9 +109,7 @@ async def startup_event():
                 logger.info(f"Successfully connected to LMStudio server")
                 
                 # Initialize the LLM agent with LMStudio config
-                core_llm_agent = CoreLLMAgent({
-                    "lmstudio_url": lmstudio_url
-                })
+                core_llm_agent = initialize_llm_agent()
                 
                 # Make the LLM agent accessible to other modules
                 agent_instances["core_llm_agent"] = core_llm_agent
@@ -137,6 +143,30 @@ async def startup_event():
         registry.update_agent_status("ocr_agent", "active")
         registry.update_agent_status("visualization_agent", "active")
         registry.update_agent_status("search_agent", "active")
+        
+        # Initialize agents as needed
+        if app_config.get("initialize_agents", True):
+            try:
+                # Initialize other agents
+                
+                # Initialize visualization agent
+                if app_config.get("initialize_viz_agent", True):
+                    from visualization.agent.viz_agent import VisualizationAgent
+                    app.state.viz_agent = VisualizationAgent({"storage_dir": "visualizations"})
+                    agent_instances["visualization_agent"] = app.state.viz_agent
+                    logger.info("Initialized Visualization Agent")
+                
+                # Initialize chat analysis agent
+                if app_config.get("initialize_chat_analysis_agent", True):
+                    from orchestration.agents.chat_analysis_agent import get_chat_analysis_agent
+                    app.state.chat_analysis_agent = get_chat_analysis_agent()
+                    agent_instances["chat_analysis_agent"] = app.state.chat_analysis_agent
+                    logger.info("Initialized Chat Analysis Agent")
+                    
+            except Exception as e:
+                logger.error(f"Error initializing agents: {e}")
+                import traceback
+                traceback.print_exc()
         
     except Exception as e:
         logger.error(f"Error during startup: {str(e)}")

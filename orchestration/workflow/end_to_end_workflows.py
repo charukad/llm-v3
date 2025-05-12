@@ -10,6 +10,7 @@ from datetime import datetime
 import uuid
 import time
 import os
+import asyncio
 
 from ..agents.registry import AgentRegistry
 from ..message_bus.message_formats import create_message
@@ -19,6 +20,8 @@ from multimodal.context.context_manager import ContextManager
 from multimodal.unified_pipeline.input_processor import InputProcessor
 from multimodal.unified_pipeline.content_router import ContentRouter
 from visualization.agent.viz_agent import VisualizationAgent
+from ..context.context_manager import get_context_manager
+from orchestration.agents.chat_analysis_agent import get_chat_analysis_agent
 
 logger = logging.getLogger(__name__)
 
@@ -245,8 +248,35 @@ class EndToEndWorkflowManager:
             workflow_id: Workflow identifier
         """
         # In a real implementation, this would be handled by a task queue or threads
-        # For this example, we'll just process it sequentially
+        # For this example, we'll use asyncio to process it
+        try:
+            # Check if we're already in an event loop
+            try:
+                loop = asyncio.get_running_loop()
+                # We're in an event loop, so create a task instead of running a new event loop
+                asyncio.create_task(self._process_workflow_async_impl(workflow_id))
+            except RuntimeError:
+                # No running event loop, safe to use asyncio.run()
+                asyncio.run(self._process_workflow_async_impl(workflow_id))
+        except Exception as e:
+            logger.error(f"Error in async workflow processing: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            
+            # Update workflow state
+            workflow = self.active_workflows.get(workflow_id)
+            if workflow:
+                workflow["state"] = "error"
+                workflow["error"] = str(e)
+                workflow["updated_at"] = datetime.now().isoformat()
+    
+    async def _process_workflow_async_impl(self, workflow_id: str) -> None:
+        """
+        Actual implementation of asynchronous workflow processing.
         
+        Args:
+            workflow_id: Workflow identifier
+        """
         try:
             workflow = self.active_workflows[workflow_id]
             workflow["state"] = "processing"
@@ -339,38 +369,126 @@ class EndToEndWorkflowManager:
                                     "original_input": processed_input
                                 }
                     except Exception as e:
-                        logger.error(f"Failed to initialize core_llm_agent on-demand: {str(e)}")
+                        logger.error(f"Error initializing LLM agent: {str(e)}")
+                        # Create a placeholder result
                         agent_result = {
                             "success": False,
-                            "error": f"LLM agent initialization failed: {str(e)}",
+                            "error": f"Error initializing LLM agent: {str(e)}",
                             "input_type": processed_input.get("input_type", "unknown"),
                             "response": "I'm sorry, I couldn't process your request due to a technical issue.",
                             "contains_math": False,
                             "original_input": processed_input
                         }
             
+            # Step 4.5: Check if this is a visualization request and process accordingly
+            self._update_workflow_step(workflow_id, "visualization_check", "Checking if visualization is needed")
+            
+            visualization_result = None
+            
+            # Try to initialize chat analysis agent if available
+            chat_analysis_agent = None
+            try:
+                chat_analysis_agent = get_chat_analysis_agent()
+            except Exception as e:
+                logger.warning(f"Could not initialize chat analysis agent: {str(e)}")
+            
+            # If chat analysis agent is available, check if this is a visualization request
+            if chat_analysis_agent:
+                try:
+                    # Extract the text content
+                    text_content = ""
+                    if processed_input.get("input_type") == "text":
+                        text_content = processed_input.get("content", "")
+                    
+                    if text_content:
+                        # Analyze the text for visualization requests
+                        analysis_result = chat_analysis_agent.analyze_plot_request(text_content)
+                        
+                        # If this is a visualization request, process it
+                        if analysis_result.get("success", False) and analysis_result.get("is_visualization_request", True):
+                            logger.info(f"Detected visualization request: {analysis_result.get('plot_type')}")
+                            
+                            # Process visualization
+                            visualization_result = await chat_analysis_agent.process_visualization_request(analysis_result)
+                            workflow["visualization_result"] = visualization_result
+                            
+                            # If successful, update the agent_result to include visualization information
+                            if visualization_result.get("success", False) and "file_path" in visualization_result:
+                                # If we have a successful agent result, update it
+                                if "success" in agent_result and agent_result.get("success", False):
+                                    if "response" in agent_result:
+                                        # Append visualization info to the response
+                                        viz_info = f"\n\nI've created a visualization based on your request. "
+                                        viz_info += f"You can view it at: {visualization_result.get('url')}"
+                                        agent_result["response"] += viz_info
+                                    
+                                    # Add visualization data to the result
+                                    agent_result["visualization"] = {
+                                        "file_path": visualization_result.get("file_path"),
+                                        "url": visualization_result.get("url"),
+                                        "plot_type": analysis_result.get("plot_type")
+                                    }
+                except Exception as e:
+                    logger.error(f"Error checking for visualization request: {str(e)}")
+                    import traceback
+                    traceback.print_exc()
+            
             # Add agent result to workflow
             workflow["agent_result"] = agent_result
             
             # Step 5: Mathematical processing if needed
+            self._update_workflow_step(workflow_id, "mathematical_processing", "Processing mathematical content")
+            
+            # Check if the input contains mathematical content
+            contains_math = agent_result.get("contains_math", False)
             math_result = None
-            contains_math = agent_result.get("contains_math", False) if agent_result else False
             
             if contains_math:
-                self._update_workflow_step(workflow_id, "math_processing", "Processing mathematical content")
+                # Extract the mathematical query
+                math_query = agent_result.get("math_query")
                 
-                # Check if math integration is available
-                if hasattr(self, 'math_integration') and self.math_integration:
-                    math_result = self.math_integration.process_multimodal_input(processed_input)
-                    workflow["math_result"] = math_result
-                else:
-                    logger.warning("Math integration not available. Skipping math processing.")
-                    # Create a placeholder math result
+                if not math_query:
+                    # Try to extract from the response
+                    response = agent_result.get("response", "")
+                    
+                    # In a real implementation, this would use better NLP to extract the query
+                    # For this example, just use the response as the query
+                    math_query = response
+                
+                # Process with math agent
+                try:
+                    # Find a suitable math agent
+                    math_agent = self._get_agent("math_computation_agent")
+                    
+                    if math_agent:
+                        # Prepare message for the math agent
+                        math_message = {
+                            "header": {
+                                "message_id": str(uuid.uuid4()),
+                                "sender": "workflow_engine",
+                                "recipient": "math_computation_agent",
+                                "timestamp": datetime.now().isoformat(),
+                                "message_type": "math_computation"
+                            },
+                            "body": {
+                                "query": math_query,
+                                "input_type": processed_input.get("input_type", "text"),
+                                "requires_explanation": True,
+                                "conversation_id": workflow.get("conversation_id")
+                            }
+                        }
+                        
+                        # Process with math agent
+                        math_result = math_agent.process_message(math_message)
+                        workflow["math_result"] = math_result
+                    else:
+                        logger.warning("No suitable math agent found for computation")
+                except Exception as e:
+                    logger.error(f"Error in mathematical processing: {str(e)}")
                     math_result = {
                         "success": False,
-                        "error": "Math processing not available",
-                        "response": "I understand this contains mathematical content, but I'm unable to process it at the moment.",
-                        "contains_math": True
+                        "error": f"Mathematical processing failed: {str(e)}",
+                        "query": math_query
                     }
                     workflow["math_result"] = math_result
             
@@ -396,118 +514,33 @@ class EndToEndWorkflowManager:
             # Step 6.5: Generate visualizations if applicable
             visualizations = []
             
-            # Check if this is a mathematical query that might benefit from visualization
-            if (agent_result and agent_result.get("contains_math", False)) or (
-                    math_result and math_result.get("success", False)):
-                
-                self._update_workflow_step(workflow_id, "visualization_generation", "Generating visualizations")
-                
-                # Extract expressions from the agent or math result
-                expressions = []
-                if math_result and "expressions" in math_result:
-                    expressions = math_result.get("expressions", [])
-                elif agent_result and "expressions" in agent_result:
-                    expressions = agent_result.get("expressions", [])
-                
-                # If no expressions were directly provided, try to extract from the query
-                if not expressions and processed_input and "content" in processed_input:
-                    content = processed_input["content"]
-                    # Simple heuristic to identify function plotting requests
-                    if isinstance(content, str) and any(kw in content.lower() for kw in ["plot", "graph", "visualize", "draw"]):
-                        # Try to extract function expressions using simple heuristics
-                        if "sin" in content or "cos" in content or "tan" in content or "^" in content:
-                            # Identify common math functions
-                            for func in ["sin", "cos", "tan", "log", "exp"]:
-                                if func in content:
-                                    # Simple extraction logic - this would be more sophisticated in a real system
-                                    if "=" in content:
-                                        parts = content.split("=")
-                                        for part in parts:
-                                            if func in part:
-                                                expressions.append(part.strip())
-                                                break
-                    
-                    # If we can't find specific expressions but the request mentions plotting
-                    if not expressions and any(kw in content.lower() for kw in ["plot", "graph", "visualize", "draw"]):
-                        # Try to extract any mathematical expression
-                        if "=" in content:
-                            parts = content.split("=")
-                            if len(parts) > 1:
-                                expr = parts[1].strip()
-                                expressions.append(expr)
-                
-                # Generate visualizations for each expression
-                for expr in expressions:
-                    try:
-                        # Clean up the expression
-                        expr = expr.replace("y=", "").replace("f(x)=", "").strip()
-                        
-                        # Create visualization request
-                        viz_params = {
-                            "expression": expr,
-                            "x_range": [-10, 10],
-                            "title": f"Plot of {expr}",
-                            "x_label": "x",
-                            "y_label": "y"
-                        }
-                        
-                        # Initialize and use the visualization agent
-                        viz_config = {"storage_dir": "visualizations", "use_database": True}
-                        viz_agent = VisualizationAgent(viz_config)
-                        
-                        # Create message for visualization
-                        viz_message = {
-                            "header": {
-                                "message_id": str(uuid.uuid4()),
-                                "sender": "workflow_manager",
-                                "recipient": "visualization_agent",
-                                "timestamp": "",
-                                "message_type": "visualization_request"
-                            },
-                            "body": {
-                                "visualization_type": "function_2d",
-                                "parameters": viz_params
-                            }
-                        }
-                        
-                        # Process visualization
-                        viz_result = viz_agent.process_message(viz_message)
-                        
-                        # Add URL for direct access to the visualization
-                        if viz_result.get("success", False) and "file_path" in viz_result:
-                            file_path = viz_result["file_path"]
-                            filename = os.path.basename(file_path)
-                            viz_result["url"] = f"/visualization/file/{filename}"
-                            
-                            # Add to visualizations list
-                            visualizations.append({
-                                "type": "function_2d",
-                                "expression": expr,
-                                "file_path": file_path,
-                                "url": f"/visualization/file/{filename}",
-                                "filename": filename
-                            })
-                    except Exception as e:
-                        logger.error(f"Error generating visualization for {expr}: {str(e)}")
+            # If math computation included a visualization, add it
+            if math_result and "visualization" in math_result:
+                visualizations.append(math_result["visualization"])
             
-            # Add visualizations to the final response
+            # If we have agent-generated visualizations, add them
+            if agent_result and "visualization" in agent_result:
+                visualizations.append(agent_result["visualization"])
+            
+            # If we have a specific visualization result from earlier, add it
+            if visualization_result and visualization_result.get("success", False):
+                visualizations.append(visualization_result)
+            
+            # Add visualizations to final response
             if visualizations:
-                if not isinstance(final_response, dict):
-                    final_response = {
-                        "success": True,
-                        "response": final_response if final_response else "Here's a visualization of the function."
-                    }
-                
                 final_response["visualizations"] = visualizations
-                
-                # Update the response text to include references to visualizations
-                if "response" in final_response and not "I've generated a visualization" in final_response["response"]:
-                    viz_note = "\n\nI've generated a visualization for this mathematical function."
-                    if isinstance(final_response["response"], str):
-                        final_response["response"] += viz_note
             
-            # Step 7: Update context
-            self._update_workflow_step(workflow_id, "context_update", "Updating context")
+            # Add to workflow
+            workflow["final_response"] = final_response
+            
+            # Step 7: Finalize workflow
+            self._update_workflow_step(workflow_id, "finalization", "Finalizing workflow")
+            
+            # If we had mathematical content, save the relevant data
+            if contains_math and math_result and math_result.get("success", False):
+                # Store mathematical data for future reference
+                # This would be in a real implementation
+                pass
             
             # Add to context
             context_id = workflow["context_id"]
@@ -554,6 +587,8 @@ class EndToEndWorkflowManager:
             
         except Exception as e:
             logger.error(f"Error processing workflow {workflow_id}: {str(e)}")
+            import traceback
+            traceback.print_exc()
             
             # Update workflow state
             workflow = self.active_workflows.get(workflow_id)

@@ -337,3 +337,20 @@ And so on. If no mathematical expressions are found, respond with "No expression
             "expressions": expressions,
             "expression_count": len(expressions)
         }
+
+def initialize_llm_agent(config: Optional[Dict[str, Any]] = None) -> CoreLLMAgent:
+    """
+    Initialize and return a CoreLLMAgent instance.
+    
+    Args:
+        config: Optional configuration for the LLM agent
+        
+    Returns:
+        Initialized CoreLLMAgent instance
+    """
+    try:
+        agent = CoreLLMAgent(config)
+        return agent
+    except Exception as e:
+        logger.error(f"Error initializing LLM agent: {str(e)}")
+        return None

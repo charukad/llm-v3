@@ -1,0 +1,95 @@
+.visualization-selector {
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 1rem;
+  margin: 1rem 0;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.visualization-selector h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.visualization-type-selector {
+  margin-bottom: 1rem;
+}
+
+.visualization-type-selector label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.visualization-type-selector select {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.visualization-parameters {
+  margin-bottom: 1rem;
+}
+
+.visualization-parameters h4 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  color: #555;
+}
+
+.parameter-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.parameter-row label {
+  flex: 0 0 30%;
+  font-weight: 500;
+}
+
+.parameter-row input[type="text"],
+.parameter-row input[type="number"] {
+  flex: 1;
+  padding: 0.4rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.visualization-error {
+  color: #d32f2f;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  background-color: #ffebee;
+  border-radius: 4px;
+}
+
+.visualization-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.visualization-actions button {
+  padding: 0.5rem 1rem;
+  background-color: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.visualization-actions button:hover {
+  background-color: #1565c0;
+}
+
+.visualization-actions button:disabled {
+  background-color: #b0bec5;
+  cursor: not-allowed;
+}

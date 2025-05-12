@@ -1,0 +1,93 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.backend.name }}
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: {{ .Values.backend.name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    release: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.backend.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.backend.name }}
+      release: {{ .Release.Name }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.backend.name }}
+        release: {{ .Release.Name }}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+      - name: {{ .Values.backend.name }}
+        image: "{{ .Values.global.registry }}/{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
+        imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.backend.service.port }}
+          name: http
+        resources:
+          {{- toYaml .Values.backend.resources | nindent 12 }}
+        env:
+        - name: MONGODB_URI
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-secrets
+              key: MONGODB_URI
+        - name: RABBITMQ_HOST
+          value: {{ .Values.rabbitmq.name }}
+        - name: RABBITMQ_PORT
+          value: "{{ .Values.rabbitmq.service.amqp.port }}"
+        - name: RABBITMQ_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-secrets
+              key: RABBITMQ_USERNAME
+        - name: RABBITMQ_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-secrets
+              key: RABBITMQ_PASSWORD
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-secrets
+              key: REDIS_URL
+        - name: QDRANT_HOST
+          value: {{ .Values.qdrant.name }}
+        - name: QDRANT_PORT
+          value: "{{ .Values.qdrant.service.api.port }}"
+        - name: LOG_LEVEL
+          value: "INFO"
+        - name: MODEL_PATH
+          value: "/app/models/mistral-7b-v0.1-4bit"
+        - name: ENVIRONMENT
+          value: {{ .Values.global.environment }}
+        volumeMounts:
+        - name: models-volume
+          mountPath: /app/models
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: {{ .Values.backend.service.port }}
+          initialDelaySeconds: {{ .Values.backend.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.backend.livenessProbe.periodSeconds }}
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: {{ .Values.backend.service.port }}
+          initialDelaySeconds: {{ .Values.backend.readinessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.backend.readinessProbe.periodSeconds }}
+      volumes:
+      - name: models-volume
+        persistentVolumeClaim:
+          claimName: models-data

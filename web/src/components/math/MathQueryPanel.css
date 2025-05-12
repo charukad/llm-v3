@@ -1,0 +1,244 @@
+.math-query-panel {
+  width: 100%;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin-bottom: 30px;
+}
+
+.query-tabs {
+  display: flex;
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #ddd;
+}
+
+.tab-button {
+  padding: 12px 20px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 15px;
+  color: #555;
+  flex: 1;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.tab-button:hover {
+  background-color: #e0e0e0;
+}
+
+.tab-button.active {
+  background-color: #fff;
+  color: #1976d2;
+  font-weight: 500;
+  border-bottom: 2px solid #1976d2;
+}
+
+.query-form {
+  padding: 20px;
+}
+
+.query-input-container {
+  margin-bottom: 15px;
+  min-height: 200px;
+}
+
+.text-query-input {
+  width: 100%;
+  min-height: 150px;
+  padding: 15px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  resize: vertical;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.text-query-input:focus {
+  border-color: #1976d2;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
+}
+
+.submit-button {
+  padding: 12px 20px;
+  background-color: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  display: block;
+  width: 100%;
+  max-width: 200px;
+  margin: 0 auto;
+}
+
+.submit-button:hover {
+  background-color: #1565c0;
+}
+
+.submit-button:disabled {
+  background-color: #bbdefb;
+  cursor: not-allowed;
+}
+
+.error-message {
+  margin: 10px 0;
+  padding: 10px;
+  background-color: #ffebee;
+  border-left: 4px solid #d32f2f;
+  color: #d32f2f;
+  border-radius: 0 4px 4px 0;
+}
+
+.example-queries {
+  padding: 15px 20px;
+  background-color: #f9f9f9;
+  border-top: 1px solid #eee;
+}
+
+.example-queries h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 16px;
+  color: #555;
+  font-weight: 500;
+}
+
+.example-queries ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.example-queries li {
+  margin-bottom: 8px;
+}
+
+.example-button {
+  width: 100%;
+  text-align: left;
+  padding: 8px 12px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #1976d2;
+  transition: background-color 0.2s;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.example-button:hover {
+  background-color: #e3f2fd;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .query-tabs {
+    flex-wrap: wrap;
+  }
+  
+  .tab-button {
+    flex: 1 0 33.33%;
+    padding: 10px;
+  }
+  
+  .query-input-container {
+    min-height: 150px;
+  }
+  
+  .text-query-input {
+    min-height: 120px;
+  }
+}
+
+@media (max-width: 480px) {
+  .query-form {
+    padding: 15px;
+  }
+  
+  .submit-button {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+/* Dark mode */
+.dark-mode .math-query-panel {
+  background-color: #282c34;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.dark-mode .query-tabs {
+  background-color: #21252b;
+  border-color: #444;
+}
+
+.dark-mode .tab-button {
+  color: #bbb;
+}
+
+.dark-mode .tab-button:hover {
+  background-color: #333;
+}
+
+.dark-mode .tab-button.active {
+  background-color: #282c34;
+  color: #61dafb;
+  border-bottom-color: #61dafb;
+}
+
+.dark-mode .text-query-input {
+  background-color: #333;
+  color: #eee;
+  border-color: #555;
+}
+
+.dark-mode .text-query-input:focus {
+  border-color: #61dafb;
+  box-shadow: 0 0 0 2px rgba(97, 218, 251, 0.2);
+}
+
+.dark-mode .submit-button {
+  background-color: #61dafb;
+  color: #282c34;
+}
+
+.dark-mode .submit-button:hover {
+  background-color: #4ec9f5;
+}
+
+.dark-mode .submit-button:disabled {
+  background-color: rgba(97, 218, 251, 0.3);
+}
+
+.dark-mode .error-message {
+  background-color: rgba(255, 107, 107, 0.1);
+  border-left-color: #ff6b6b;
+  color: #ff6b6b;
+}
+
+.dark-mode .example-queries {
+  background-color: #21252b;
+  border-color: #444;
+}
+
+.dark-mode .example-queries h3 {
+  color: #bbb;
+}
+
+.dark-mode .example-button {
+  background-color: #333;
+  border-color: #555;
+  color: #61dafb;
+}
+
+.dark-mode .example-button:hover {
+  background-color: #3b4048;
+}

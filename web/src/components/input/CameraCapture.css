@@ -1,0 +1,323 @@
+.camera-capture {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.camera-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.video-container {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  overflow: hidden;
+  border-radius: 8px;
+  background-color: #000;
+  aspect-ratio: 4/3;
+}
+
+.camera-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.camera-guidelines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+}
+
+.camera-guidelines::before {
+  content: '';
+  position: absolute;
+  top: 10%;
+  left: 10%;
+  width: 80%;
+  height: 80%;
+  border: 2px dashed rgba(255, 255, 255, 0.7);
+  border-radius: 8px;
+}
+
+.guideline-text {
+  position: absolute;
+  top: 20px;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+}
+
+.camera-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding: 0 16px;
+}
+
+.flash-button {
+  padding: 8px 12px;
+  background-color: rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  color: #333;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.flash-button.active {
+  background-color: #ffd54f;
+  border-color: #ffb300;
+  color: #000;
+}
+
+.capture-button {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: white;
+  border: 3px solid #ccc;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.capture-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: #f44336;
+}
+
+.capture-button:hover {
+  border-color: #999;
+}
+
+.capture-button:active .capture-icon {
+  transform: scale(0.9);
+}
+
+.upload-button-small {
+  padding: 8px 12px;
+  background-color: rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  color: #333;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.hidden-canvas {
+  display: none;
+}
+
+.file-input {
+  display: none;
+}
+
+.preview-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.image-preview {
+  width: 100%;
+  max-width: 600px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.preview-image {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.preview-controls {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  width: 100%;
+}
+
+.retry-button {
+  padding: 10px 20px;
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  color: #333;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.retry-button:hover {
+  background-color: #e0e0e0;
+}
+
+.use-image-button {
+  padding: 10px 20px;
+  background-color: #0277bd;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.use-image-button:hover {
+  background-color: #01579b;
+}
+
+.camera-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 32px;
+  width: 100%;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-left-color: #0277bd;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.camera-error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  width: 100%;
+}
+
+.camera-error {
+  padding: 16px;
+  background-color: #ffebee;
+  border: 1px solid #ffcdd2;
+  border-radius: 8px;
+  width: 100%;
+  text-align: center;
+}
+
+.error-icon {
+  font-size: 20px;
+  margin-right: 8px;
+}
+
+.error-help {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #666;
+}
+
+.camera-alternatives {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.upload-button {
+  padding: 10px 20px;
+  background-color: #e3f2fd;
+  border: 1px solid #bbdefb;
+  border-radius: 4px;
+  color: #0277bd;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  max-width: 300px;
+}
+
+.upload-button:hover {
+  background-color: #bbdefb;
+}
+
+.cancel-button {
+  padding: 10px 20px;
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  color: #333;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  max-width: 300px;
+  margin-top: 8px;
+}
+
+.cancel-button:hover {
+  background-color: #e0e0e0;
+}
+
+@media (max-width: 600px) {
+  .camera-controls {
+    gap: 8px;
+  }
+  
+  .capture-button {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .capture-icon {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .flash-button, .upload-button-small {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+  
+  .preview-controls {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .retry-button, .use-image-button {
+    width: 100%;
+    padding: 12px;
+  }
+}

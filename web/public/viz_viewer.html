@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mathematical Visualization Viewer</title>
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #6b8cae;
+            --accent-color: #3d5a80;
+            --text-color: #333;
+            --light-bg: #f8f9fa;
+            --border-color: #dee2e6;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: #f5f7fa;
+            padding-bottom: 2rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1.5rem 0;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        header .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        h2 {
+            font-size: 1.2rem;
+            font-weight: normal;
+            opacity: 0.9;
+        }
+        
+        .query-form {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        button {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        button:hover {
+            background-color: #2c4766;
+        }
+        
+        .example-queries {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .example-queries h3 {
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+        
+        .example-queries ul {
+            list-style-type: none;
+        }
+        
+        .example-queries li {
+            margin-bottom: 0.25rem;
+            color: var(--primary-color);
+            cursor: pointer;
+        }
+        
+        .example-queries li:hover {
+            text-decoration: underline;
+        }
+        
+        .results {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            min-height: 200px;
+            display: none;
+        }
+        
+        .results.visible {
+            display: block;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--secondary-color);
+            display: none;
+        }
+        
+        .query-display {
+            background-color: var(--light-bg);
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1.5rem;
+            font-style: italic;
+        }
+        
+        .answer-section h3 {
+            margin-bottom: 1rem;
+            color: var(--accent-color);
+            font-size: 1.2rem;
+        }
+        
+        .answer-content {
+            line-height: 1.7;
+            margin-bottom: 2rem;
+        }
+        
+        .visualizations {
+            margin-top: 2rem;
+        }
+        
+        .visualizations h3 {
+            margin-bottom: 1rem;
+            color: var(--accent-color);
+            font-size: 1.2rem;
+        }
+        
+        .visualization-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .visualization-item {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .visualization-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .visualization-caption {
+            padding: 1rem;
+            background-color: var(--light-bg);
+            font-size: 0.9rem;
+        }
+        
+        footer {
+            margin-top: 3rem;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            h2 {
+                font-size: 1rem;
+            }
+            
+            .visualization-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Mathematical Visualization Viewer</h1>
+            <h2>Ask mathematical questions and see visualizations</h2>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="query-form">
+            <textarea id="query-input" placeholder="Enter your mathematical query (e.g., 'Plot the function f(x) = x^2 - 4x + 4')"></textarea>
+            <button id="submit-query">Get Answer & Visualize</button>
+            
+            <div class="example-queries">
+                <h3>Example Queries:</h3>
+                <ul>
+                    <li data-query="Plot the function f(x) = sin(x) for x from -2π to 2π">Plot the function f(x) = sin(x) for x from -2π to 2π</li>
+                    <li data-query="Find the derivative of f(x) = x^3 - 3x^2 + 2x and visualize both functions">Find the derivative of f(x) = x^3 - 3x^2 + 2x and visualize both functions</li>
+                    <li data-query="What are the critical points of f(x) = x^3 - 3x^2 + 2x?">What are the critical points of f(x) = x^3 - 3x^2 + 2x?</li>
+                    <li data-query="Plot the quadratic function f(x) = 2x^2 - 8x + 6 and label its vertex">Plot the quadratic function f(x) = 2x^2 - 8x + 6 and label its vertex</li>
+                    <li data-query="Solve the equation x^2 - 5x + 6 = 0 and show the graph">Solve the equation x^2 - 5x + 6 = 0 and show the graph</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="loading" id="loading">
+            <p>Processing your query...</p>
+        </div>
+        
+        <div class="results" id="results">
+            <div class="query-display" id="query-display"></div>
+            
+            <div class="answer-section">
+                <h3>Answer:</h3>
+                <div class="answer-content" id="answer-content"></div>
+            </div>
+            
+            <div class="visualizations" id="visualizations-section">
+                <h3>Visualizations:</h3>
+                <div class="visualization-grid" id="visualization-grid"></div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 Mathematical Multimodal LLM System</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const queryInput = document.getElementById('query-input');
+            const submitBtn = document.getElementById('submit-query');
+            const loading = document.getElementById('loading');
+            const results = document.getElementById('results');
+            const queryDisplay = document.getElementById('query-display');
+            const answerContent = document.getElementById('answer-content');
+            const visualizationsSection = document.getElementById('visualizations-section');
+            const visualizationGrid = document.getElementById('visualization-grid');
+            
+            // Set up example query clicks
+            document.querySelectorAll('.example-queries li').forEach(item => {
+                item.addEventListener('click', () => {
+                    queryInput.value = item.getAttribute('data-query');
+                    // Optionally auto-submit
+                    // submitBtn.click();
+                });
+            });
+            
+            // Handle form submission
+            submitBtn.addEventListener('click', async () => {
+                const query = queryInput.value.trim();
+                
+                if (!query) {
+                    alert('Please enter a mathematical query.');
+                    return;
+                }
+                
+                // Show loading, hide results
+                loading.style.display = 'block';
+                results.classList.remove('visible');
+                
+                try {
+                    // Make API request
+                    const response = await fetch('http://127.0.0.1:8000/math/query', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            query: query,
+                            include_visualization: true
+                        }),
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`API error: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    // Update UI with results
+                    queryDisplay.textContent = query;
+                    answerContent.textContent = data.answer;
+                    
+                    // Handle visualizations
+                    if (data.visualizations && data.visualizations.length > 0) {
+                        visualizationsSection.style.display = 'block';
+                        visualizationGrid.innerHTML = '';
+                        
+                        data.visualizations.forEach(viz => {
+                            const vizItem = document.createElement('div');
+                            vizItem.className = 'visualization-item';
+                            
+                            const img = document.createElement('img');
+                            img.src = `data:image/png;base64,${viz.image}`;
+                            img.alt = viz.title || 'Mathematical visualization';
+                            
+                            const caption = document.createElement('div');
+                            caption.className = 'visualization-caption';
+                            caption.textContent = viz.title || `Plot of ${viz.expression}`;
+                            
+                            vizItem.appendChild(img);
+                            vizItem.appendChild(caption);
+                            visualizationGrid.appendChild(vizItem);
+                        });
+                    } else {
+                        visualizationsSection.style.display = 'none';
+                    }
+                    
+                    // Hide loading, show results
+                    loading.style.display = 'none';
+                    results.classList.add('visible');
+                    
+                } catch (error) {
+                    console.error('Error:', error);
+                    answerContent.textContent = `Error: ${error.message}. Please ensure the server is running at http://127.0.0.1:8000.`;
+                    visualizationsSection.style.display = 'none';
+                    
+                    // Hide loading, show results with error
+                    loading.style.display = 'none';
+                    results.classList.add('visible');
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

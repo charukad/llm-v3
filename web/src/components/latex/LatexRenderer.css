@@ -1,0 +1,39 @@
+.latex-renderer {
+  font-family: 'Computer Modern', Georgia, serif;
+  line-height: 1.5;
+  overflow-x: auto;
+}
+
+.block-math {
+  display: block;
+  margin: 15px 0;
+  text-align: center;
+}
+
+.inline-math {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.latex-placeholder {
+  font-family: 'Courier New', monospace;
+  color: #666;
+}
+
+/* Accessibility improvements */
+.latex-renderer[role="math"] {
+  outline: none;
+}
+
+.latex-renderer[role="math"]:focus {
+  box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.5);
+}
+
+/* Dark mode */
+.dark-mode .latex-renderer {
+  color: #eee;
+}
+
+.dark-mode .latex-placeholder {
+  color: #aaa;
+}

@@ -1,0 +1,68 @@
+# Core dependencies
+torch>=2.0.0
+transformers>=4.34.0
+numpy>=1.24.0
+sympy>=1.12.0
+pandas>=2.0.0
+pydantic>=2.4.2
+
+# Machine learning and acceleration
+bitsandbytes>=0.41.0
+accelerate>=0.23.0
+
+# Mathematical processing
+scipy>=1.10.0
+
+# Visualization
+matplotlib>=3.7.0
+plotly>=5.16.0
+seaborn>=0.12.2
+
+# Multimodal processing
+opencv-python>=4.7.0
+paddlepaddle>=2.4.2
+paddleocr>=2.6.1
+Pillow>=10.0
+
+# Web and API
+fastapi>=0.103.1
+uvicorn>=0.23.2
+websockets>=11.0.0
+jinja2>=3.1.2
+
+# Database and caching
+pymongo>=4.5.0
+redis>=5.0.0
+qdrant-client>=1.6.0
+
+# Message bus and orchestration
+pika>=1.3.2
+temporalio>=1.4.0
+celery>=5.2.7
+
+# Utilities
+tqdm>=4.66.1
+requests>=2.31.0
+huggingface-hub>=0.18.0
+python-dotenv>=1.0.0
+tenacity>=8.2.3
+logging-color-formatter>=1.0.2
+
+# Search
+beautifulsoup4>=4.12.0
+google-api-python-client>=2.86.0
+
+# LaTeX processing
+latex2sympy2==1.9.1
+antlr4-python3-runtime==4.7.2
+
+# Testing
+pytest>=7.4.2
+pytest-cov>=4.1.0
+hypothesis>=6.70.0
+
+# Development
+black>=23.9.1
+flake8>=6.0.0
+isort>=5.12.0
+mypy>=1.5.1 

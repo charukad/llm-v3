@@ -1,0 +1,32 @@
+"filename", "language", "Python", "Shell Script", "comment", "blank", "total"
+"/Users/dasuncharuka/Desktop/new/math-llm-system/scripts/__init__.py", "Python", 0, 0, 0, -1, -1
+"/Users/dasuncharuka/Desktop/new/math-llm-system/scripts/db_backup.py", "Python", -153, 0, -21, -46, -220
+"/Users/dasuncharuka/Desktop/new/math-llm-system/scripts/db_restore.py", "Python", -129, 0, -17, -32, -178
+"/Users/dasuncharuka/Desktop/new/math-llm-system/scripts/initialize_message_bus.py", "Python", -175, 0, -17, -39, -231
+"/Users/dasuncharuka/Desktop/new/math-llm-system/scripts/make_advanced_ocr_executable.sh", "Shell Script", 0, -2, -2, -1, -5
+"/Users/dasuncharuka/Desktop/new/math-llm-system/scripts/make_executable.sh", "Shell Script", 0, -1, -1, -1, -3
+"/Users/dasuncharuka/Desktop/new/math-llm-system/scripts/make_ocr_executable.sh", "Shell Script", 0, -2, -2, -1, -5
+"/Users/dasuncharuka/Desktop/new/math-llm-system/scripts/setup_database.py", "Python", -77, 0, -12, -23, -112
+"/Users/dasuncharuka/Desktop/new/math-llm-system/scripts/test_advanced_image_processing.py", "Python", -227, 0, -45, -73, -345
+"/Users/dasuncharuka/Desktop/new/math-llm-system/scripts/test_agent_communication.py", "Python", -208, 0, -36, -60, -304
+"/Users/dasuncharuka/Desktop/new/math-llm-system/scripts/test_agent_registry.py", "Python", -105, 0, -28, -48, -181
+"/Users/dasuncharuka/Desktop/new/math-llm-system/scripts/test_core_components.py", "Python", -68, 0, -12, -24, -104
+"/Users/dasuncharuka/Desktop/new/math-llm-system/scripts/test_database.py", "Python", -145, 0, -28, -47, -220
+"/Users/dasuncharuka/Desktop/new/math-llm-system/scripts/test_handwriting_recognition.py", "Python", -90, 0, -13, -26, -129
+"/Users/dasuncharuka/Desktop/new/math-llm-system/scripts/test_integration.py", "Python", -541, 0, -58, -138, -737
+"/Users/dasuncharuka/Desktop/new/math-llm-system/scripts/test_logging.py", "Python", -69, 0, -12, -32, -113
+"/Users/dasuncharuka/Desktop/new/math-llm-system/scripts/test_math_knowledge_agent.py", "Python", -135, 0, -8, -33, -176
+"/Users/dasuncharuka/Desktop/new/math-llm-system/scripts/test_math_ocr_enhancement.py", "Python", -108, 0, -14, -32, -154
+"/Users/dasuncharuka/Desktop/new/math-llm-system/scripts/test_message_bus.py", "Python", -140, 0, -20, -40, -200
+"/Users/dasuncharuka/Desktop/new/math-llm-system/scripts/test_mistral_integration.py", "Python", -138, 0, -14, -39, -191
+"/Users/dasuncharuka/Desktop/new/math-llm-system/scripts/test_orchestration.py", "Python", -300, 0, -27, -79, -406
+"/Users/dasuncharuka/Desktop/new/math-llm-system/scripts/test_visualization.py", "Python", -139, 0, -5, -24, -168
+"/Users/dasuncharuka/Desktop/new/math-llm-system/scripts/validate_sprint1.py", "Python", -123, 0, -20, -38, -181
+"/Users/dasuncharuka/Desktop/new/math-llm-system/search/__init__.py", "Python", 0, 0, 0, 1, 1
+"/Users/dasuncharuka/Desktop/new/math-llm-system/search/agent/__init__.py", "Python", 0, 0, 0, 1, 1
+"/Users/dasuncharuka/Desktop/new/math-llm-system/search/api/__init__.py", "Python", 0, 0, 0, 1, 1
+"/Users/dasuncharuka/Desktop/new/math-llm-system/search/integration/__init__.py", "Python", 0, 0, 0, 1, 1
+"/Users/dasuncharuka/Desktop/new/math-llm-system/search/processing/__init__.py", "Python", 0, 0, 0, 1, 1
+"/Users/dasuncharuka/Desktop/new/math-llm-system/search/query/__init__.py", "Python", 0, 0, 0, 1, 1
+"/Users/dasuncharuka/Desktop/new/math-llm-system/search/tests/__init__.py", "Python", 0, 0, 0, 1, 1
+"Total", "-", -3070, -5, -412, -870, -4357

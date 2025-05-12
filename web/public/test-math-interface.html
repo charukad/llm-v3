@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mathematical Interface Test</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    h1 {
+      color: #333;
+      margin-top: 0;
+    }
+    
+    .test-section {
+      margin-bottom: 40px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .section-title {
+      color: #0277bd;
+      margin-top: 0;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 40px;
+      font-size: 18px;
+      color: #666;
+    }
+    
+    footer {
+      margin-top: 30px;
+      text-align: center;
+      font-size: 14px;
+      color: #666;
+      border-top: 1px solid #eee;
+      padding-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Mathematical Interface Test</h1>
+    
+    <div class="test-section">
+      <h2 class="section-title">Mathematical Query Interface</h2>
+      <div id="math-query-section">
+        <div class="loading">Loading math query interface...</div>
+      </div>
+    </div>
+    
+    <div class="test-section">
+      <h2 class="section-title">Mathematical Response Display</h2>
+      <div id="math-response-section">
+        <div class="loading">Loading response display...</div>
+      </div>
+    </div>
+    
+    <div class="test-section">
+      <h2 class="section-title">Step-by-Step Solution</h2>
+      <div id="step-by-step-section">
+        <div class="loading">Loading step-by-step solution...</div>
+      </div>
+    </div>
+    
+    <div class="test-section">
+      <h2 class="section-title">Visualization Display</h2>
+      <div id="visualization-section">
+        <div class="loading">Loading visualization display...</div>
+      </div>
+    </div>
+    
+    <footer>
+      <p>Mathematical Multimodal LLM System | User Interface Enhancement (Sprint 23)</p>
+    </footer>
+  </div>
+  
+  <!-- Include React, ReactDOM, and other dependencies -->
+  <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/better-react-mathjax@2.0.2/dist/index.js"></script>
+  <script src="https://cdn.plot.ly/plotly-2.14.0.min.js"></script>
+  
+  <!-- Include Babel for JSX transformation -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  
+  <!-- Test script with components -->
+  <script type="text/babel">
+    // MathJax configuration
+    const mathJaxConfig = {
+      loader: { load: ['input/tex', 'output/svg'] },
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true,
+        processEnvironments: true
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+    
+    // Mock data for tests
+    const mockMathResponse = {
+      text: "The derivative of $f(x) = x^2\\sin(x)$ can be found using the product rule. Recall that if $f(x) = u(x) \\cdot v(x)$, then $f'(x) = u'(x) \\cdot v(x) + u(x) \\cdot v'(x)$.",
+      latex_expressions: [
+        "f(x) = x^2\\sin(x)",
+        "f'(x) = 2x\\sin(x) + x^2\\cos(x)",
+        "\\frac{d}{dx}[x^2\\sin(x)] = 2x\\sin(x) + x^2\\cos(x)"
+      ],
+      visualizations: [
+        {
+          type: "plotly",
+          title: "Function and its Derivative",
+          data: {
+            traces: [
+              {
+                type: "scatter",
+                mode: "lines",
+                name: "f(x) = x²sin(x)",
+                x: Array.from({length: 100}, (_, i) => -10 + i * 0.2),
+                y: Array.from({length: 100}, (_, i) => {
+                  const x = -10 + i * 0.2;
+                  return x * x * Math.sin(x);
+                }),
+                line: {
+                  color: "#1f77b4",
+                  width: 2
+                }
+              },
+              {
+                type: "scatter",
+                mode: "lines",
+                name: "f'(x) = 2xsin(x) + x²cos(x)",
+                x: Array.from({length: 100}, (_, i) => -10 + i * 0.2),
+                y: Array.from({length: 100}, (_, i) => {
+                  const x = -10 + i * 0.2;
+                  return 2 * x * Math.sin(x) + x * x * Math.cos(x);
+                }),
+                line: {
+                  color: "#ff7f0e",
+                  width: 2,
+                  dash: "dash"
+                }
+              }
+            ],
+            layout: {
+              title: "Function and its Derivative",
+              xaxis: {
+                title: "x"
+              },
+              yaxis: {
+                title: "y"
+              }
+            }
+          },
+          description: "This graph shows the original function $f(x) = x^2\\sin(x)$ in blue and its derivative $f'(x) = 2x\\sin(x) + x^2\\cos(x)$ in orange."
+        },
+        {
+          type: "svg",
+          title: "Product Rule Visualization",
+          data: `<svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+            <rect width="400" height="200" fill="#f8f9fa" />
+            <text x="200" y="30" font-family="Arial" font-size="16" text-anchor="middle" font-weight="bold">Product Rule Visualization</text>
+            <text x="200" y="60" font-family="Arial" font-size="14" text-anchor="middle">f(x) = u(x) · v(x)</text>
+            <text x="200" y="90" font-family="Arial" font-size="14" text-anchor="middle">f'(x) = u'(x) · v(x) + u(x) · v'(x)</text>
+            <rect x="50" y="110" width="150" height="50" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" />
+            <text x="125" y="140" font-family="Arial" font-size="14" text-anchor="middle">u(x) = x²</text>
+            <rect x="200" y="110" width="150" height="50" fill="#e8f5e9" stroke="#388e3c" stroke-width="2" />
+            <text x="275" y="140" font-family="Arial" font-size="14" text-anchor="middle">v(x) = sin(x)</text>
+            <text x="125" y="180" font-family="Arial" font-size="14" text-anchor="middle">u'(x) = 2x</text>
+            <text x="275" y="180" font-family="Arial" font-size="14" text-anchor="middle">v'(x) = cos(x)</text>
+          </svg>`,
+          description: "A visual representation of the product rule applied to f(x) = x²sin(x)."
+        }
+      ],
+      steps: [
+        {
+          step_number: 1,
+          title: "Identify the components",
+          description: "We need to identify the two functions that are being multiplied. For $f(x) = x^2\\sin(x)$, we have $u(x) = x^2$ and $v(x) = \\sin(x)$.",
+          input_expression: "f(x) = x^2\\sin(x)",
+          is_key_step: true
+        },
+        {
+          step_number: 2,
+          title: "Find the derivatives of each component",
+          description: "Calculate the derivatives of $u(x)$ and $v(x)$. The derivative of $u(x) = x^2$ is $u'(x) = 2x$. The derivative of $v(x) = \\sin(x)$ is $v'(x) = \\cos(x)$.",
+          calculation: "\\begin{align} u'(x) &= \\frac{d}{dx}[x^2] = 2x \\\\ v'(x) &= \\frac{d}{dx}[\\sin(x)] = \\cos(x) \\end{align}",
+          is_key_step: true
+        },
+        {
+          step_number: 3,
+          title: "Apply the product rule",
+          description: "Using the product rule formula $f'(x) = u'(x) \\cdot v(x) + u(x) \\cdot v'(x)$, substitute our components and their derivatives.",
+          calculation: "\\begin{align} f'(x) &= u'(x) \\cdot v(x) + u(x) \\cdot v'(x) \\\\ &= 2x \\cdot \\sin(x) + x^2 \\cdot \\cos(x) \\\\ &= 2x\\sin(x) + x^2\\cos(x) \\end{align}",
+          output_expression: "f'(x) = 2x\\sin(x) + x^2\\cos(x)",
+          is_key_step: true
+        },
+        {
+          step_number: 4,
+          title: "Verify with alternative method",
+          description: "We can verify this result using logarithmic differentiation or by expanding the expression and taking the derivative term by term.",
+          notes: "This step is optional but helps confirm the correctness of our answer.",
+          is_key_step: false,
+          is_minor_step: true
+        }
+      ],
+      solution_summary: "The derivative of $f(x) = x^2\\sin(x)$ is $f'(x) = 2x\\sin(x) + x^2\\cos(x)$, which was found by applying the product rule.",
+      key_concepts: [
+        "Product Rule: If $f(x) = u(x) \\cdot v(x)$, then $f'(x) = u'(x) \\cdot v(x) + u(x) \\cdot v'(x)$",
+        "Derivative of $x^n$: $\\frac{d}{dx}[x^n] = nx^{n-1}$",
+        "Derivative of $\\sin(x)$: $\\frac{d}{dx}[\\sin(x)] = \\cos(x)$"
+      ],
+      references: [
+        "Stewart, J. (2016). Calculus: Early Transcendentals (8th ed.). Cengage Learning.",
+        "The Product Rule. (2022). Khan Academy. https://www.khanacademy.org/math/ap-calculus-ab/ab-differentiation-2-new/ab-3-1a/v/product-rule"
+      ]
+    };
+    
+    // Mock preferences
+    const mockPreferences = {
+      stepByStep: true,
+      includeVisualization: true,
+      detailLevel: 'medium',
+      responseFormat: 'integrated',
+      accessibilityMode: false
+    };
+    
+    // App Component
+    function TestApp() {
+      const [query, setQuery] = React.useState("");
+      const [loading, setLoading] = React.useState(false);
+      const [response, setResponse] = React.useState(null);
+      
+      // Handle query submission
+      const handleQuerySubmit = (queryData) => {
+        setLoading(true);
+        console.log("Query submitted:", queryData);
+        
+        // Simulate API call with timeout
+        setTimeout(() => {
+          setResponse(mockMathResponse);
+          setLoading(false);
+        }, 1500);
+      };
+      
+      // Handle copy LaTeX
+      const handleCopyLatex = (latex) => {
+        navigator.clipboard.writeText(latex)
+          .then(() => {
+            alert("LaTeX copied to clipboard!");
+          })
+          .catch(err => {
+            console.error("Failed to copy LaTeX:", err);
+            alert("Failed to copy LaTeX to clipboard");
+          });
+      };
+      
+      // Handle export to PDF
+      const handleExportPDF = () => {
+        alert("PDF export functionality would be implemented here.");
+      };
+      
+      // Render
+      return (
+        <BetterMathJax.MathJaxContext config={mathJaxConfig}>
+          {/* Math Query Panel */}
+          <div id="math-query-section">
+            <MathQueryPanel 
+              onSubmit={handleQuerySubmit}
+              placeholder="Enter a mathematical question or expression (e.g., Find the derivative of x² sin(x))"
+              loading={loading}
+              error={null}
+            />
+          </div>
+          
+          {/* Response Display */}
+          <div id="math-response-section">
+            {loading ? (
+              <div className="loading">Processing query...</div>
+            ) : response ? (
+              <IntegratedResponse 
+                response={response}
+                preferences={mockPreferences}
+                onCopyLatex={handleCopyLatex}
+                onExportPDF={handleExportPDF}
+              />
+            ) : (
+              <div className="no-response">
+                <p>Submit a query to see the response.</p>
+              </div>
+            )}
+          </div>
+          
+          {/* Separate Step-by-Step Component for testing */}
+          <div id="step-by-step-section">
+            <h3>Test Step-by-Step Component</h3>
+            <StepByStepSolution
+              steps={mockMathResponse.steps}
+              expandedSteps={[0]}
+              onToggleStep={(stepId) => {
+                console.log("Toggle step:", stepId);
+              }}
+              detailLevel="medium"
+            />
+          </div>
+          
+          {/* Visualization Component for testing */}
+          <div id="visualization-section">
+            <h3>Test Visualization Component</h3>
+            <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+              <VisualizationDisplay
+                visualization={mockMathResponse.visualizations[0]}
+                interactive={true}
+                height={400}
+                onSelect={(vis) => {
+                  console.log("Visualization selected:", vis);
+                }}
+              />
+            </div>
+          </div>
+        </BetterMathJax.MathJaxContext>
+      );
+    }
+    
+    // Import UI components from modules
+    // In a real application, these would be imported from actual files
+    // For this demo, we're defining them inline
+    
+    // Camera Capture Component (Simplified version)
+    function CameraCapture({ onCapture, onCancel }) {
+      return (
+        <div className="camera-capture">
+          <div className="camera-alternatives">
+            <p>Camera functionality would be implemented here.</p>
+            <p>For now, you can use the text or math input options.</p>
+            <button 
+              type="button" 
+              className="cancel-button"
+              onClick={onCancel}
+            >
+              Back to Text Input
+            </button>
+          </div>
+        </div>
+      );
+    }
+    
+    // Mount the app
+    ReactDOM.render(
+      <TestApp />,
+      document.getElementById('math-query-section')
+    );
+  </script>
+</body>
+</html>

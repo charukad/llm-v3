@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: rabbitmq
+  namespace: math-llm-system
+spec:
+  serviceName: "rabbitmq"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rabbitmq
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+    spec:
+      containers:
+      - name: rabbitmq
+        image: rabbitmq:3-management
+        ports:
+        - containerPort: 5672
+          name: amqp
+        - containerPort: 15672
+          name: http
+        env:
+        - name: RABBITMQ_DEFAULT_USER
+          valueFrom:
+            secretKeyRef:
+              name: math-llm-secrets
+              key: RABBITMQ_USERNAME
+        - name: RABBITMQ_DEFAULT_PASS
+          valueFrom:
+            secretKeyRef:
+              name: math-llm-secrets
+              key: RABBITMQ_PASSWORD
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "200m"
+          limits:
+            memory: "2Gi"
+            cpu: "1"
+        volumeMounts:
+        - name: rabbitmq-data
+          mountPath: /var/lib/rabbitmq
+        livenessProbe:
+          exec:
+            command: ["rabbitmq-diagnostics", "ping"]
+          initialDelaySeconds: 60
+          periodSeconds: 60
+          timeoutSeconds: 15
+        readinessProbe:
+          exec:
+            command: ["rabbitmq-diagnostics", "check_port_connectivity"]
+          initialDelaySeconds: 20
+          periodSeconds: 30
+          timeoutSeconds: 10
+  volumeClaimTemplates:
+  - metadata:
+      name: rabbitmq-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "standard"
+      resources:
+        requests:
+          storage: 10Gi

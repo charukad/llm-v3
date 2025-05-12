@@ -1,0 +1,48 @@
+Date : 2025-04-26 10:57:32
+Directory : /Users/dasuncharuka/Desktop/new/math-llm-system/scripts
+Total : 23 files,  3075 codes, 412 comments, 877 blanks, all 4364 lines
+
+Languages
++--------------+------------+------------+------------+------------+------------+
+| language     | files      | code       | comment    | blank      | total      |
++--------------+------------+------------+------------+------------+------------+
+| Python       |         20 |      3,070 |        407 |        874 |      4,351 |
+| Shell Script |          3 |          5 |          5 |          3 |         13 |
++--------------+------------+------------+------------+------------+------------+
+
+Directories
++-------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                      | files      | code       | comment    | blank      | total      |
++-------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                         |         23 |      3,075 |        412 |        877 |      4,364 |
++-------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++-------------------------------------------------------------------------------------------+--------------+------------+------------+------------+------------+
+| filename                                                                                  | language     | code       | comment    | blank      | total      |
++-------------------------------------------------------------------------------------------+--------------+------------+------------+------------+------------+
+| /Users/dasuncharuka/Desktop/new/math-llm-system/scripts/__init__.py                       | Python       |          0 |          0 |          1 |          1 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/scripts/db_backup.py                      | Python       |        153 |         21 |         46 |        220 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/scripts/db_restore.py                     | Python       |        129 |         17 |         32 |        178 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/scripts/initialize_message_bus.py         | Python       |        175 |         17 |         39 |        231 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/scripts/make_advanced_ocr_executable.sh   | Shell Script |          2 |          2 |          1 |          5 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/scripts/make_executable.sh                | Shell Script |          1 |          1 |          1 |          3 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/scripts/make_ocr_executable.sh            | Shell Script |          2 |          2 |          1 |          5 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/scripts/setup_database.py                 | Python       |         77 |         12 |         23 |        112 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/scripts/test_advanced_image_processing.py | Python       |        227 |         45 |         73 |        345 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/scripts/test_agent_communication.py       | Python       |        208 |         36 |         60 |        304 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/scripts/test_agent_registry.py            | Python       |        105 |         28 |         48 |        181 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/scripts/test_core_components.py           | Python       |         68 |         12 |         24 |        104 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/scripts/test_database.py                  | Python       |        145 |         28 |         47 |        220 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/scripts/test_handwriting_recognition.py   | Python       |         90 |         13 |         26 |        129 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/scripts/test_integration.py               | Python       |        541 |         58 |        138 |        737 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/scripts/test_logging.py                   | Python       |         69 |         12 |         32 |        113 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/scripts/test_math_knowledge_agent.py      | Python       |        135 |          8 |         33 |        176 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/scripts/test_math_ocr_enhancement.py      | Python       |        108 |         14 |         32 |        154 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/scripts/test_message_bus.py               | Python       |        140 |         20 |         40 |        200 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/scripts/test_mistral_integration.py       | Python       |        138 |         14 |         39 |        191 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/scripts/test_orchestration.py             | Python       |        300 |         27 |         79 |        406 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/scripts/test_visualization.py             | Python       |        139 |          5 |         24 |        168 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/scripts/validate_sprint1.py               | Python       |        123 |         20 |         38 |        181 |
+| Total                                                                                     |              |      3,075 |        412 |        877 |      4,364 |
++-------------------------------------------------------------------------------------------+--------------+------------+------------+------------+------------+

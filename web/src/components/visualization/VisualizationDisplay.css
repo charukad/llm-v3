@@ -1,0 +1,184 @@
+.visualization-display {
+  width: 100%;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Loading state */
+.visualization-loading {
+  padding: 30px;
+  text-align: center;
+  color: #666;
+}
+
+.loading-indicator {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  border: 3px solid rgba(25, 118, 210, 0.2);
+  border-radius: 50%;
+  border-top-color: #1976d2;
+  animation: spin 1s ease-in-out infinite;
+  margin-bottom: 10px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Error state */
+.visualization-error {
+  padding: 15px;
+  color: #d32f2f;
+  text-align: center;
+}
+
+/* Image visualization */
+.visualization-image-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+}
+
+.visualization-image {
+  max-width: 100%;
+  max-height: 500px;
+  object-fit: contain;
+}
+
+.full-size .visualization-image {
+  max-height: 800px;
+}
+
+/* SVG visualization */
+.visualization-svg-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  overflow: hidden;
+}
+
+.visualization-svg-container svg {
+  max-width: 100%;
+  max-height: 500px;
+}
+
+.full-size .visualization-svg-container svg {
+  max-height: 800px;
+}
+
+/* Plotly visualization */
+.visualization-plotly-container {
+  width: 100%;
+  height: 400px;
+}
+
+.full-size .visualization-plotly-container {
+  height: 600px;
+}
+
+/* Canvas visualization */
+.visualization-canvas {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+}
+
+/* Visualization description */
+.visualization-description {
+  padding: 10px 15px;
+  font-size: 14px;
+  color: #555;
+  background-color: #f9f9f9;
+  border-top: 1px solid #eee;
+}
+
+.visualization-description p {
+  margin: 0;
+}
+
+/* Visualization controls */
+.visualization-controls {
+  display: flex;
+  padding: 10px;
+  border-top: 1px solid #eee;
+  background-color: #f5f5f5;
+}
+
+.visualization-controls .control-button {
+  padding: 6px 12px;
+  margin-right: 10px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  color: #555;
+  transition: background-color 0.2s;
+}
+
+.visualization-controls .control-button:hover {
+  background-color: #f0f0f0;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .visualization-image {
+    max-height: 300px;
+  }
+  
+  .visualization-plotly-container {
+    height: 300px;
+  }
+  
+  .full-size .visualization-plotly-container {
+    height: 400px;
+  }
+}
+
+/* Dark mode */
+.dark-mode .visualization-display {
+  background-color: #282c34;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.dark-mode .visualization-loading {
+  color: #bbb;
+}
+
+.dark-mode .loading-indicator {
+  border-color: rgba(97, 218, 251, 0.2);
+  border-top-color: #61dafb;
+}
+
+.dark-mode .visualization-error {
+  color: #ff6b6b;
+}
+
+.dark-mode .visualization-description {
+  background-color: #21252b;
+  border-color: #444;
+  color: #bbb;
+}
+
+.dark-mode .visualization-controls {
+  background-color: #21252b;
+  border-color: #444;
+}
+
+.dark-mode .visualization-controls .control-button {
+  background-color: #333;
+  border-color: #555;
+  color: #eee;
+}
+
+.dark-mode .visualization-controls .control-button:hover {
+  background-color: #444;
+}

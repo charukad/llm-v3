@@ -1,0 +1,127 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: math-llm-system
+  labels:
+    app: backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: backend
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: backend
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+      - name: backend
+        image: ${DOCKER_REGISTRY}/math-llm-system-backend:${TAG}
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+          name: http
+        resources:
+          requests:
+            memory: "4Gi"
+            cpu: "1"
+          limits:
+            memory: "8Gi"
+            cpu: "2"
+        env:
+        - name: MONGODB_URI
+          valueFrom:
+            secretKeyRef:
+              name: math-llm-secrets
+              key: MONGODB_URI
+        - name: RABBITMQ_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: math-llm-config
+              key: RABBITMQ_HOST
+        - name: RABBITMQ_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: math-llm-config
+              key: RABBITMQ_PORT
+        - name: RABBITMQ_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: math-llm-secrets
+              key: RABBITMQ_USERNAME
+        - name: RABBITMQ_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: math-llm-secrets
+              key: RABBITMQ_PASSWORD
+        - name: REDIS_URL
+          value: "redis://:$(REDIS_PASSWORD)@$(REDIS_HOST):$(REDIS_PORT)/0"
+        - name: REDIS_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: math-llm-config
+              key: REDIS_HOST
+        - name: REDIS_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: math-llm-config
+              key: REDIS_PORT
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: math-llm-secrets
+              key: REDIS_PASSWORD
+        - name: QDRANT_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: math-llm-config
+              key: QDRANT_HOST
+        - name: QDRANT_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: math-llm-config
+              key: QDRANT_PORT
+        - name: LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: math-llm-config
+              key: LOG_LEVEL
+        - name: MODEL_PATH
+          valueFrom:
+            configMapKeyRef:
+              name: math-llm-config
+              key: MODEL_PATH
+        - name: ENVIRONMENT
+          valueFrom:
+            configMapKeyRef:
+              name: math-llm-config
+              key: ENVIRONMENT
+        volumeMounts:
+        - name: models-volume
+          mountPath: /app/models
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: models-volume
+        persistentVolumeClaim:
+          claimName: models-data

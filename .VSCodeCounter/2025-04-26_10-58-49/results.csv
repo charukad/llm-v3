@@ -1,0 +1,50 @@
+"filename", "language", "Python", "JavaScript", "JavaScript JSX", "CSS", "comment", "blank", "total"
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/__init__.py", "Python", 0, 0, 0, 0, 0, 1, 1
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/public/__init__.py", "Python", 0, 0, 0, 0, 0, 1, 1
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/public/assets/__init__.py", "Python", 0, 0, 0, 0, 0, 1, 1
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/public/assets/fonts/__init__.py", "Python", 0, 0, 0, 0, 0, 1, 1
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/public/assets/images/__init__.py", "Python", 0, 0, 0, 0, 0, 1, 1
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/src/App.jsx", "JavaScript JSX", 0, 0, 23, 0, 2, 5, 30
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/src/__init__.py", "Python", 0, 0, 0, 0, 0, 1, 1
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/MathInputPanel.jsx", "JavaScript JSX", 0, 0, 315, 0, 32, 52, 399
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/__init__.py", "Python", 0, 0, 0, 0, 0, 1, 1
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/conversation/__init__.py", "Python", 0, 0, 0, 0, 0, 1, 1
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/input/__init__.py", "Python", 0, 0, 0, 0, 0, 1, 1
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/latex/LatexDocument.css", "CSS", 0, 0, 0, 182, 3, 40, 225
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/latex/LatexDocument.jsx", "JavaScript JSX", 0, 0, 265, 0, 13, 25, 303
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/latex/LatexEditor.css", "CSS", 0, 0, 0, 147, 2, 24, 173
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/latex/LatexEditor.jsx", "JavaScript JSX", 0, 0, 228, 0, 21, 20, 269
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/latex/LatexRenderer.css", "CSS", 0, 0, 0, 27, 2, 5, 34
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/latex/LatexRenderer.jsx", "JavaScript JSX", 0, 0, 63, 0, 21, 12, 96
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/layout/__init__.py", "Python", 0, 0, 0, 0, 0, 1, 1
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/math/MathInput.css", "CSS", 0, 0, 0, 173, 1, 28, 202
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/math/MathInput.jsx", "JavaScript JSX", 0, 0, 239, 0, 25, 34, 298
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/math/MathQueryPanel.css", "CSS", 0, 0, 0, 96, 1, 19, 116
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/math/MathQueryPanel.jsx", "JavaScript JSX", 0, 0, 163, 0, 27, 32, 222
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/math/StepByStepSolution.css", "CSS", 0, 0, 0, 106, 1, 19, 126
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/math/StepByStepSolution.jsx", "JavaScript JSX", 0, 0, 123, 0, 20, 14, 157
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/math/__init__.py", "Python", 0, 0, 0, 0, 0, 1, 1
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/preferences/ResponsePreferences.css", "CSS", 0, 0, 0, 159, 1, 33, 193
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/preferences/ResponsePreferences.jsx", "JavaScript JSX", 0, 0, 189, 0, 18, 17, 224
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/response/IntegratedResponse.css", "CSS", 0, 0, 0, 249, 3, 48, 300
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/response/IntegratedResponse.jsx", "JavaScript JSX", 0, 0, 294, 0, 35, 41, 370
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/visualization/InteractionVisualizations.css", "CSS", 0, 0, 0, 55, 0, 9, 64
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/visualization/InteractionVisualizations.jsx", "JavaScript JSX", 0, 0, 73, 0, 3, 16, 92
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/visualization/VisualizationDisplay.css", "CSS", 0, 0, 0, 51, 0, 8, 59
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/visualization/VisualizationDisplay.jsx", "JavaScript JSX", 0, 0, 85, 0, 11, 16, 112
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/visualization/VisualizationSelector.css", "CSS", 0, 0, 0, 81, 0, 15, 96
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/visualization/VisualizationSelector.jsx", "JavaScript JSX", 0, 0, 209, 0, 21, 38, 268
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/visualization/__init__.py", "Python", 0, 0, 0, 0, 0, 1, 1
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/src/context/__init__.py", "Python", 0, 0, 0, 0, 0, 1, 1
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/src/hooks/__init__.py", "Python", 0, 0, 0, 0, 0, 1, 1
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/src/services/__init__.py", "Python", 0, 0, 0, 0, 0, 1, 1
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/src/services/preferencesService.js", "JavaScript", 0, 49, 0, 0, 22, 10, 81
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/src/services/responseService.js", "JavaScript", 0, 93, 0, 0, 29, 15, 137
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/src/services/workflowService.js", "JavaScript", 0, 94, 0, 0, 36, 21, 151
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/src/styles/MathInputPanel.css", "CSS", 0, 0, 0, 196, 0, 34, 230
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/src/styles/__init__.py", "Python", 0, 0, 0, 0, 0, 1, 1
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/src/utils/__init__.py", "Python", 0, 0, 0, 0, 0, 1, 1
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/src/utils/accessibleLatex.js", "JavaScript", 0, 168, 0, 0, 51, 32, 251
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/src/utils/latexEngineConfig.js", "JavaScript", 0, 92, 0, 0, 37, 13, 142
+"/Users/dasuncharuka/Desktop/new/math-llm-system/web/tests/__init__.py", "Python", 0, 0, 0, 0, 0, 1, 1
+"Total", "-", 0, 496, 2269, 1522, 438, 713, 5438

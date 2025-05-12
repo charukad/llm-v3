@@ -1,0 +1,63 @@
+.interaction-visualizations {
+  margin: 1rem 0;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  overflow: hidden;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.interaction-visualizations h3 {
+  margin: 0;
+  padding: 1rem;
+  border-bottom: 1px solid #e0e0e0;
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+.visualization-tabs {
+  display: flex;
+  overflow-x: auto;
+  border-bottom: 1px solid #e0e0e0;
+  background-color: #f9f9f9;
+}
+
+.visualization-tab {
+  padding: 0.75rem 1rem;
+  border: none;
+  background: none;
+  color: #555;
+  font-size: 0.9rem;
+  cursor: pointer;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.visualization-tab:hover {
+  background-color: #f1f1f1;
+  color: #333;
+}
+
+.visualization-tab.active {
+  background-color: #fff;
+  color: #1976d2;
+  border-bottom-color: #1976d2;
+  font-weight: 500;
+}
+
+.selected-visualization {
+  padding: 1rem;
+}
+
+.interaction-visualizations-loading,
+.interaction-visualizations-error,
+.interaction-visualizations-empty {
+  padding: 2rem;
+  text-align: center;
+  color: #666;
+}
+
+.interaction-visualizations-error {
+  color: #d32f2f;
+}

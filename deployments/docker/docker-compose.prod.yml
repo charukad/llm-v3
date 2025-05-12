@@ -1,0 +1,222 @@
+version: '3.8'
+
+services:
+  # Backend API service
+  backend:
+    build:
+      context: .
+      dockerfile: deployments/docker/Dockerfile
+    deploy:
+      replicas: 3
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
+      update_config:
+        parallelism: 1
+        delay: 10s
+      resources:
+        limits:
+          cpus: '2'
+          memory: 8G
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/math_llm_system
+      - RABBITMQ_HOST=rabbitmq
+      - REDIS_URL=redis://redis:6379/0
+      - QDRANT_HOST=qdrant
+      - QDRANT_PORT=6333
+      - LOG_LEVEL=INFO
+      - MODEL_PATH=/app/models/mistral-7b-v0.1-4bit
+      - ENVIRONMENT=production
+    volumes:
+      - models_volume:/app/models
+      - data_volume:/app/data
+    networks:
+      - math_llm_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Frontend web service
+  web:
+    build:
+      context: .
+      dockerfile: deployments/docker/Dockerfile.web
+    deploy:
+      replicas: 3
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
+      update_config:
+        parallelism: 1
+        delay: 10s
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    networks:
+      - math_llm_network
+
+  # Load balancer
+  loadbalancer:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deployments/docker/nginx-lb.conf:/etc/nginx/conf.d/default.conf
+      - ./deployments/docker/ssl:/etc/nginx/ssl
+    depends_on:
+      - web
+      - backend
+    networks:
+      - math_llm_network
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+      update_config:
+        parallelism: 1
+        delay: 10s
+
+  # MongoDB database
+  mongodb:
+    image: mongo:6.0
+    volumes:
+      - mongodb_data:/data/db
+      - ./deployments/docker/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - math_llm_network
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=secure_password
+      - MONGO_INITDB_DATABASE=math_llm_system
+
+  # RabbitMQ message broker
+  rabbitmq:
+    image: rabbitmq:3-management
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+      - ./deployments/docker/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+    networks:
+      - math_llm_network
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=secure_password
+
+  # Redis cache
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+      - ./deployments/docker/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    networks:
+      - math_llm_network
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+
+  # Qdrant vector database
+  qdrant:
+    image: qdrant/qdrant:latest
+    volumes:
+      - qdrant_data:/qdrant/storage
+      - ./deployments/docker/qdrant_config.yaml:/qdrant/config/production.yaml:ro
+    networks:
+      - math_llm_network
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+
+  # Prometheus for metrics collection
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./deployments/docker/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    networks:
+      - math_llm_network
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+
+  # Grafana for metrics visualization
+  grafana:
+    image: grafana/grafana:latest
+    volumes:
+      - ./deployments/docker/grafana/provisioning:/etc/grafana/provisioning
+      - grafana_data:/var/lib/grafana
+    networks:
+      - math_llm_network
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=secure_admin_password
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=https://monitoring.math-llm-system.example.com
+
+networks:
+  math_llm_network:
+    driver: overlay
+    attachable: true
+
+volumes:
+  mongodb_data:
+  rabbitmq_data:
+  redis_data:
+  qdrant_data:
+  prometheus_data:
+  grafana_data:
+  models_volume:
+  data_volume:

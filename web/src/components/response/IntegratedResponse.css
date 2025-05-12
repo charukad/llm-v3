@@ -1,0 +1,398 @@
+.integrated-response {
+  width: 100%;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin-bottom: 30px;
+}
+
+/* Loading state */
+.response-loading {
+  padding: 40px 20px;
+  text-align: center;
+  color: #666;
+}
+
+.loading-indicator {
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(25, 118, 210, 0.2);
+  border-radius: 50%;
+  border-top-color: #1976d2;
+  animation: spin 1s ease-in-out infinite;
+  margin-bottom: 15px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Error state */
+.response-error {
+  padding: 20px;
+  background-color: #ffebee;
+  border-left: 4px solid #d32f2f;
+}
+
+.response-error h3 {
+  margin-top: 0;
+  color: #d32f2f;
+  font-size: 18px;
+}
+
+/* Tabs */
+.response-tabs {
+  display: flex;
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #ddd;
+  overflow-x: auto;
+}
+
+.response-tabs .tab-button {
+  padding: 12px 20px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 15px;
+  color: #555;
+  white-space: nowrap;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.response-tabs .tab-button:hover {
+  background-color: #e0e0e0;
+}
+
+.response-tabs .tab-button.active {
+  background-color: #fff;
+  color: #1976d2;
+  font-weight: 500;
+  border-bottom: 2px solid #1976d2;
+}
+
+/* Tab content */
+.response-content {
+  padding: 20px;
+  min-height: 200px;
+}
+
+/* Full response tab */
+.full-response {
+  line-height: 1.6;
+}
+
+.response-text {
+  margin-bottom: 20px;
+  font-size: 16px;
+}
+
+.response-text .display-math {
+  margin: 15px 0;
+  overflow-x: auto;
+}
+
+.response-text .inline-math {
+  padding: 0 2px;
+}
+
+.response-steps {
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+
+.response-steps h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #333;
+  font-size: 18px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 8px;
+}
+
+.response-visualizations {
+  margin-top: 30px;
+}
+
+.response-visualizations h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #333;
+  font-size: 18px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 8px;
+}
+
+.response-visualization-item {
+  margin-bottom: 20px;
+}
+
+/* Key concepts and references */
+.key-concepts, .references {
+  margin-top: 30px;
+  background-color: #f9f9f9;
+  padding: 15px;
+  border-radius: 4px;
+}
+
+.key-concepts h3, .references h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #333;
+  font-size: 18px;
+}
+
+.key-concepts ul, .references ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.key-concepts li, .references li {
+  margin-bottom: 5px;
+}
+
+/* Steps tab */
+.steps-tab {
+  /* Styles for the step-by-step tab */
+}
+
+/* Visualizations tab */
+.visualizations-tab {
+  /* Styles for the visualizations tab */
+}
+
+.visualization-item {
+  margin-bottom: 30px;
+}
+
+.visualization-item h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #333;
+  font-size: 18px;
+}
+
+.visualization-item p {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #555;
+}
+
+/* LaTeX tab */
+.latex-tab {
+  /* Styles for the LaTeX tab */
+}
+
+.latex-tab h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #333;
+  font-size: 18px;
+}
+
+.latex-item {
+  margin-bottom: 30px;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.latex-display {
+  padding: 15px;
+  background-color: #fff;
+  border-bottom: 1px solid #eee;
+  overflow-x: auto;
+}
+
+.latex-code {
+  position: relative;
+  background-color: #f5f5f5;
+  padding: 15px;
+}
+
+.latex-code pre {
+  margin: 0;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  overflow-x: auto;
+  color: #333;
+}
+
+.copy-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 5px 10px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.copy-button:hover {
+  background-color: #f0f0f0;
+}
+
+/* Response actions */
+.response-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 15px 20px;
+  background-color: #f9f9f9;
+  border-top: 1px solid #eee;
+}
+
+.action-button {
+  padding: 8px 15px;
+  margin-left: 10px;
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  color: #555;
+  transition: background-color 0.2s;
+}
+
+.action-button:hover {
+  background-color: #e0e0e0;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .response-tabs {
+    flex-wrap: wrap;
+  }
+  
+  .response-tabs .tab-button {
+    flex: 1 0 50%;
+    text-align: center;
+    padding: 10px;
+  }
+  
+  .response-content {
+    padding: 15px;
+  }
+  
+  .response-actions {
+    flex-wrap: wrap;
+  }
+  
+  .action-button {
+    flex: 1 0 auto;
+    margin: 5px;
+    text-align: center;
+  }
+}
+
+/* Dark mode */
+.dark-mode .integrated-response {
+  background-color: #282c34;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.dark-mode .response-loading {
+  color: #bbb;
+}
+
+.dark-mode .loading-indicator {
+  border-color: rgba(97, 218, 251, 0.2);
+  border-top-color: #61dafb;
+}
+
+.dark-mode .response-error {
+  background-color: rgba(255, 107, 107, 0.1);
+  border-left-color: #ff6b6b;
+}
+
+.dark-mode .response-error h3 {
+  color: #ff6b6b;
+}
+
+.dark-mode .response-tabs {
+  background-color: #21252b;
+  border-color: #444;
+}
+
+.dark-mode .response-tabs .tab-button {
+  color: #bbb;
+}
+
+.dark-mode .response-tabs .tab-button:hover {
+  background-color: #333;
+}
+
+.dark-mode .response-tabs .tab-button.active {
+  background-color: #282c34;
+  color: #61dafb;
+  border-bottom-color: #61dafb;
+}
+
+.dark-mode .response-text {
+  color: #eee;
+}
+
+.dark-mode .response-steps h3,
+.dark-mode .response-visualizations h3,
+.dark-mode .key-concepts h3,
+.dark-mode .references h3,
+.dark-mode .visualization-item h3,
+.dark-mode .latex-tab h3 {
+  color: #eee;
+  border-color: #444;
+}
+
+.dark-mode .visualization-item p {
+  color: #bbb;
+}
+
+.dark-mode .key-concepts, 
+.dark-mode .references {
+  background-color: #21252b;
+}
+
+.dark-mode .latex-item {
+  border-color: #444;
+}
+
+.dark-mode .latex-display {
+  background-color: #333;
+  border-color: #444;
+}
+
+.dark-mode .latex-code {
+  background-color: #21252b;
+}
+
+.dark-mode .latex-code pre {
+  color: #eee;
+}
+
+.dark-mode .copy-button {
+  background-color: #333;
+  border-color: #555;
+  color: #eee;
+}
+
+.dark-mode .copy-button:hover {
+  background-color: #444;
+}
+
+.dark-mode .response-actions {
+  background-color: #21252b;
+  border-color: #444;
+}
+
+.dark-mode .action-button {
+  background-color: #333;
+  border-color: #555;
+  color: #eee;
+}
+
+.dark-mode .action-button:hover {
+  background-color: #444;
+}

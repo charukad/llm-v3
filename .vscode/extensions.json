@@ -1,0 +1,16 @@
+{
+  "recommendations": [
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "ms-azuretools.vscode-docker",
+    "ms-kubernetes-tools.vscode-kubernetes-tools",
+    "mtxr.sqltools",
+    "mtxr.sqltools-driver-mysql",
+    "streetsidesoftware.code-spell-checker",
+    "redhat.vscode-yaml",
+    "yzhang.markdown-all-in-one",
+    "ms-vsliveshare.vsliveshare"
+  ]
+}

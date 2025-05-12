@@ -1,0 +1,131 @@
+Date : 2025-04-26 10:58:49
+Directory : /Users/dasuncharuka/Desktop/new/math-llm-system/web
+Total : 70 files,  -211 codes, -242 comments, -237 blanks, all -690 lines
+
+Languages
++----------------+------------+------------+------------+------------+------------+
+| language       | files      | code       | comment    | blank      | total      |
++----------------+------------+------------+------------+------------+------------+
+| JavaScript JSX |         13 |      2,269 |        249 |        322 |      2,840 |
+| CSS            |         12 |      1,522 |         14 |        282 |      1,818 |
+| JavaScript     |          5 |        496 |        175 |         91 |        762 |
+| Python         |         40 |     -4,498 |       -680 |       -932 |     -6,110 |
++----------------+------------+------------+------------+------------+------------+
+
+Directories
++----------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                                           | files      | code       | comment    | blank      | total      |
++----------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                                              |         70 |       -211 |       -242 |       -237 |       -690 |
+| . (Files)                                                                                                      |          1 |          0 |          0 |          1 |          1 |
+| ..                                                                                                             |         22 |     -4,498 |       -680 |       -950 |     -6,128 |
+| ../visualization                                                                                               |         22 |     -4,498 |       -680 |       -950 |     -6,128 |
+| ../visualization (Files)                                                                                       |          1 |         -5 |          0 |         -2 |         -7 |
+| ../visualization/advanced                                                                                      |          2 |       -764 |       -113 |       -136 |     -1,013 |
+| ../visualization/agent                                                                                         |          6 |     -1,319 |       -169 |       -276 |     -1,764 |
+| ../visualization/integration                                                                                   |          1 |          0 |          0 |         -1 |         -1 |
+| ../visualization/plotting                                                                                      |          6 |     -1,794 |       -308 |       -394 |     -2,496 |
+| ../visualization/selection                                                                                     |          2 |       -341 |        -46 |        -69 |       -456 |
+| ../visualization/tests                                                                                         |          4 |       -275 |        -44 |        -72 |       -391 |
+| public                                                                                                         |          4 |          0 |          0 |          4 |          4 |
+| public (Files)                                                                                                 |          1 |          0 |          0 |          1 |          1 |
+| public/assets                                                                                                  |          3 |          0 |          0 |          3 |          3 |
+| public/assets (Files)                                                                                          |          1 |          0 |          0 |          1 |          1 |
+| public/assets/fonts                                                                                            |          1 |          0 |          0 |          1 |          1 |
+| public/assets/images                                                                                           |          1 |          0 |          0 |          1 |          1 |
+| src                                                                                                            |         42 |      4,287 |        438 |        707 |      5,432 |
+| src (Files)                                                                                                    |          2 |         23 |          2 |          6 |         31 |
+| src/components                                                                                                 |         29 |      3,572 |        261 |        571 |      4,404 |
+| src/components (Files)                                                                                         |          2 |        315 |         32 |         53 |        400 |
+| src/components/conversation                                                                                    |          1 |          0 |          0 |          1 |          1 |
+| src/components/input                                                                                           |          1 |          0 |          0 |          1 |          1 |
+| src/components/latex                                                                                           |          6 |        912 |         62 |        126 |      1,100 |
+| src/components/layout                                                                                          |          1 |          0 |          0 |          1 |          1 |
+| src/components/math                                                                                            |          7 |        900 |         75 |        147 |      1,122 |
+| src/components/preferences                                                                                     |          2 |        348 |         19 |         50 |        417 |
+| src/components/response                                                                                        |          2 |        543 |         38 |         89 |        670 |
+| src/components/visualization                                                                                   |          7 |        554 |         35 |        103 |        692 |
+| src/context                                                                                                    |          1 |          0 |          0 |          1 |          1 |
+| src/hooks                                                                                                      |          1 |          0 |          0 |          1 |          1 |
+| src/services                                                                                                   |          4 |        236 |         87 |         47 |        370 |
+| src/styles                                                                                                     |          2 |        196 |          0 |         35 |        231 |
+| src/utils                                                                                                      |          3 |        260 |         88 |         46 |        394 |
+| tests                                                                                                          |          1 |          0 |          0 |          1 |          1 |
++----------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++----------------------------------------------------------------------------------------------------------------+----------------+------------+------------+------------+------------+
+| filename                                                                                                       | language       | code       | comment    | blank      | total      |
++----------------------------------------------------------------------------------------------------------------+----------------+------------+------------+------------+------------+
+| /Users/dasuncharuka/Desktop/new/math-llm-system/visualization/__init__.py                                      | Python         |         -5 |          0 |         -2 |         -7 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/visualization/advanced/__init__.py                             | Python         |          0 |          0 |         -1 |         -1 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/visualization/advanced/linear_algebra_vis.py                   | Python         |       -764 |       -113 |       -135 |     -1,012 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/visualization/agent/__init__.py                                | Python         |         -5 |          0 |         -2 |         -7 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/visualization/agent/advanced_viz_agent.py                      | Python         |       -433 |        -80 |       -113 |       -626 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/visualization/agent/interactive_viz_agent.py                   | Python         |       -229 |        -21 |        -41 |       -291 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/visualization/agent/mathematical_viz_agent.py                  | Python         |       -216 |        -23 |        -41 |       -280 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/visualization/agent/message_handler.py                         | Python         |       -111 |        -10 |        -22 |       -143 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/visualization/agent/viz_agent.py                               | Python         |       -325 |        -35 |        -57 |       -417 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/visualization/integration/__init__.py                          | Python         |          0 |          0 |         -1 |         -1 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/visualization/plotting/__init__.py                             | Python         |         -5 |          0 |         -2 |         -7 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/visualization/plotting/interactive.py                          | Python         |       -508 |        -93 |       -110 |       -711 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/visualization/plotting/mathematical.py                         | Python         |       -589 |       -120 |       -147 |       -856 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/visualization/plotting/plot_2d.py                              | Python         |       -189 |        -34 |        -44 |       -267 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/visualization/plotting/plot_3d.py                              | Python         |       -238 |        -29 |        -43 |       -310 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/visualization/plotting/statistical.py                          | Python         |       -265 |        -32 |        -48 |       -345 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/visualization/selection/__init__.py                            | Python         |         -5 |          0 |         -2 |         -7 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/visualization/selection/context_analyzer.py                    | Python         |       -336 |        -46 |        -67 |       -449 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/visualization/tests/__init__.py                                | Python         |         -3 |          0 |         -1 |         -4 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/visualization/tests/test_agent.py                              | Python         |       -102 |        -16 |        -22 |       -140 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/visualization/tests/test_plotting.py                           | Python         |       -110 |        -11 |        -28 |       -149 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/visualization/tests/test_selector.py                           | Python         |        -60 |        -17 |        -21 |        -98 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/__init__.py                                                | Python         |          0 |          0 |          1 |          1 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/public/__init__.py                                         | Python         |          0 |          0 |          1 |          1 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/public/assets/__init__.py                                  | Python         |          0 |          0 |          1 |          1 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/public/assets/fonts/__init__.py                            | Python         |          0 |          0 |          1 |          1 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/public/assets/images/__init__.py                           | Python         |          0 |          0 |          1 |          1 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/src/App.jsx                                                | JavaScript JSX |         23 |          2 |          5 |         30 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/src/__init__.py                                            | Python         |          0 |          0 |          1 |          1 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/MathInputPanel.jsx                          | JavaScript JSX |        315 |         32 |         52 |        399 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/__init__.py                                 | Python         |          0 |          0 |          1 |          1 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/conversation/__init__.py                    | Python         |          0 |          0 |          1 |          1 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/input/__init__.py                           | Python         |          0 |          0 |          1 |          1 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/latex/LatexDocument.css                     | CSS            |        182 |          3 |         40 |        225 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/latex/LatexDocument.jsx                     | JavaScript JSX |        265 |         13 |         25 |        303 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/latex/LatexEditor.css                       | CSS            |        147 |          2 |         24 |        173 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/latex/LatexEditor.jsx                       | JavaScript JSX |        228 |         21 |         20 |        269 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/latex/LatexRenderer.css                     | CSS            |         27 |          2 |          5 |         34 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/latex/LatexRenderer.jsx                     | JavaScript JSX |         63 |         21 |         12 |         96 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/layout/__init__.py                          | Python         |          0 |          0 |          1 |          1 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/math/MathInput.css                          | CSS            |        173 |          1 |         28 |        202 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/math/MathInput.jsx                          | JavaScript JSX |        239 |         25 |         34 |        298 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/math/MathQueryPanel.css                     | CSS            |         96 |          1 |         19 |        116 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/math/MathQueryPanel.jsx                     | JavaScript JSX |        163 |         27 |         32 |        222 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/math/StepByStepSolution.css                 | CSS            |        106 |          1 |         19 |        126 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/math/StepByStepSolution.jsx                 | JavaScript JSX |        123 |         20 |         14 |        157 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/math/__init__.py                            | Python         |          0 |          0 |          1 |          1 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/preferences/ResponsePreferences.css         | CSS            |        159 |          1 |         33 |        193 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/preferences/ResponsePreferences.jsx         | JavaScript JSX |        189 |         18 |         17 |        224 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/response/IntegratedResponse.css             | CSS            |        249 |          3 |         48 |        300 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/response/IntegratedResponse.jsx             | JavaScript JSX |        294 |         35 |         41 |        370 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/visualization/InteractionVisualizations.css | CSS            |         55 |          0 |          9 |         64 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/visualization/InteractionVisualizations.jsx | JavaScript JSX |         73 |          3 |         16 |         92 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/visualization/VisualizationDisplay.css      | CSS            |         51 |          0 |          8 |         59 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/visualization/VisualizationDisplay.jsx      | JavaScript JSX |         85 |         11 |         16 |        112 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/visualization/VisualizationSelector.css     | CSS            |         81 |          0 |         15 |         96 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/visualization/VisualizationSelector.jsx     | JavaScript JSX |        209 |         21 |         38 |        268 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/src/components/visualization/__init__.py                   | Python         |          0 |          0 |          1 |          1 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/src/context/__init__.py                                    | Python         |          0 |          0 |          1 |          1 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/src/hooks/__init__.py                                      | Python         |          0 |          0 |          1 |          1 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/src/services/__init__.py                                   | Python         |          0 |          0 |          1 |          1 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/src/services/preferencesService.js                         | JavaScript     |         49 |         22 |         10 |         81 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/src/services/responseService.js                            | JavaScript     |         93 |         29 |         15 |        137 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/src/services/workflowService.js                            | JavaScript     |         94 |         36 |         21 |        151 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/src/styles/MathInputPanel.css                              | CSS            |        196 |          0 |         34 |        230 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/src/styles/__init__.py                                     | Python         |          0 |          0 |          1 |          1 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/src/utils/__init__.py                                      | Python         |          0 |          0 |          1 |          1 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/src/utils/accessibleLatex.js                               | JavaScript     |        168 |         51 |         32 |        251 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/src/utils/latexEngineConfig.js                             | JavaScript     |         92 |         37 |         13 |        142 |
+| /Users/dasuncharuka/Desktop/new/math-llm-system/web/tests/__init__.py                                          | Python         |          0 |          0 |          1 |          1 |
+| Total                                                                                                          |                |       -211 |       -242 |       -237 |       -690 |
++----------------------------------------------------------------------------------------------------------------+----------------+------------+------------+------------+------------+

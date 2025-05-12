@@ -1,0 +1,131 @@
+name: CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+    tags:
+      - 'v*'
+
+jobs:
+  build-backend:
+    name: Build Backend Docker Image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ secrets.DOCKER_REGISTRY }}/math-llm-system-backend
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,format=short
+      
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: deployments/docker/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/math-llm-system-backend:buildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/math-llm-system-backend:buildcache,mode=max
+
+  build-frontend:
+    name: Build Frontend Docker Image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ secrets.DOCKER_REGISTRY }}/math-llm-system-frontend
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,format=short
+      
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: deployments/docker/Dockerfile.web
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/math-llm-system-frontend:buildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/math-llm-system-frontend:buildcache,mode=max
+
+  deploy:
+    name: Deploy to Kubernetes
+    needs: [build-backend, build-frontend]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+      
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: 'latest'
+      
+      - name: Set Kubernetes Context
+        uses: azure/k8s-set-context@v3
+        with:
+          kubeconfig: ${{ secrets.KUBE_CONFIG }}
+      
+      - name: Extract version
+        id: extract_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+      
+      - name: Deploy with Helm
+        run: |
+          helm upgrade --install math-llm-system ./deployments/kubernetes/helm/math-llm-system \
+            --namespace ${{ secrets.K8S_NAMESPACE }} \
+            --create-namespace \
+            --set global.registry=${{ secrets.DOCKER_REGISTRY }} \
+            --set backend.image.tag=${{ env.VERSION }} \
+            --set frontend.image.tag=${{ env.VERSION }} \
+            --set mongodb.auth.rootPassword=${{ secrets.MONGODB_ROOT_PASSWORD }} \
+            --set rabbitmq.auth.password=${{ secrets.RABBITMQ_PASSWORD }} \
+            --set redis.auth.password=${{ secrets.REDIS_PASSWORD }} \
+            --set grafana.admin.password=${{ secrets.GRAFANA_ADMIN_PASSWORD }} \
+            --set global.domain=${{ secrets.APP_DOMAIN }} \
+            --set global.monitoring.domain=${{ secrets.MONITORING_DOMAIN }}
+      
+      - name: Verify deployment
+        run: |
+          kubectl rollout status deployment/backend -n ${{ secrets.K8S_NAMESPACE }}
+          kubectl rollout status deployment/frontend -n ${{ secrets.K8S_NAMESPACE }}

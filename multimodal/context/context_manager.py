@@ -361,3 +361,52 @@ class ContextManager:
                 "image": [entity.get("id") for entity in image_entities]
             }
         }
+
+# Singleton instance for the context manager
+_context_manager_instance = None
+
+def get_context_manager() -> ContextManager:
+    """Get or create the context manager singleton instance."""
+    global _context_manager_instance
+    if _context_manager_instance is None:
+        _context_manager_instance = ContextManager()
+    return _context_manager_instance
+
+# Add method to get conversation context
+async def get_conversation_context(self, conversation_id: str, 
+                                context_id: Optional[str] = None) -> Dict[str, Any]:
+    """
+    Get context for a conversation.
+    
+    Args:
+        conversation_id: The conversation ID
+        context_id: Optional specific context ID
+        
+    Returns:
+        Dictionary with context data
+    """
+    # If a specific context is requested, get that
+    if context_id:
+        context = self.get_context(context_id)
+        if context:
+            return {
+                "conversation_id": conversation_id,
+                "context_id": context_id,
+                "context_data": context.to_dict()
+            }
+    
+    # Otherwise, create a new context for this conversation
+    context = self.create_context(conversation_id=conversation_id)
+    
+    # In a real implementation, this would fetch conversation history
+    # from a database or other storage
+    
+    return {
+        "conversation_id": conversation_id,
+        "context_id": context.context_id,
+        "context_data": context.to_dict(),
+        "conversation_history": []
+    }
+
+# Add the method to the ContextManager class
+ContextManager.get_conversation_context = get_conversation_context

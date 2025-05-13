@@ -9,6 +9,7 @@ from typing import Dict, Any, List, Optional, Union
 
 from ..agent.ocr_agent import OCRAgent
 from ..agent.advanced_ocr_agent import AdvancedOCRAgent
+from ..agent.llm_router_agent import LLMRouterAgent
 
 logger = logging.getLogger(__name__)
 
@@ -25,14 +26,24 @@ class ContentRouter:
         self.config = config or {}
         self.ocr_agent = OCRAgent()
         self.advanced_ocr_agent = AdvancedOCRAgent()
-        logger.info("Initialized content router")
+        
+        # Initialize LLM Router agent for intelligent routing
+        use_llm_router = self.config.get("use_llm_router", True)
+        if use_llm_router:
+            self.llm_router_agent = LLMRouterAgent(self.config.get("llm_router_config"))
+            logger.info("Initialized content router with LLM-powered routing")
+        else:
+            self.llm_router_agent = None
+            logger.info("Initialized content router with rule-based routing")
     
-    def route_content(self, processed_input: Dict[str, Any]) -> Dict[str, Any]:
+    def route_content(self, processed_input: Dict[str, Any], 
+                     context_data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
         Route processed input to appropriate agents for further processing.
         
         Args:
             processed_input: Dictionary containing processed input data
+            context_data: Optional context data including conversation history
             
         Returns:
             Dictionary containing agent processing results
@@ -46,6 +57,11 @@ class ContentRouter:
         
         logger.info(f"Routing content of type: {input_type}")
         
+        # Use LLM routing if available
+        if self.llm_router_agent:
+            return self._route_with_llm(processed_input, context_data)
+        
+        # Fall back to rule-based routing if LLM router is not available
         if input_type == 'image':
             return self._route_image_content(processed_input)
         elif input_type == 'text':
@@ -56,6 +72,93 @@ class ContentRouter:
             error_msg = f"Unsupported content type for routing: {input_type}"
             logger.error(error_msg)
             return {"error": error_msg, "success": False}
+    
+    def _route_with_llm(self, processed_input: Dict[str, Any], 
+                       context_data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """
+        Use LLM to intelligently route content.
+        
+        Args:
+            processed_input: Dictionary containing processed input data
+            context_data: Optional context data
+            
+        Returns:
+            Dictionary containing routing results
+        """
+        # Get routing decision from LLM router agent
+        routing_result = self.llm_router_agent.route_request(processed_input, context_data)
+        
+        if not routing_result.get("success", False):
+            logger.warning(f"LLM routing failed: {routing_result.get('error', 'Unknown error')}")
+            # Fall back to rule-based routing
+            input_type = processed_input.get('input_type')
+            if input_type == 'image':
+                return self._route_image_content(processed_input)
+            elif input_type == 'text':
+                return self._route_text_content(processed_input)
+            elif input_type == 'multipart':
+                return self._route_multipart_content(processed_input)
+            else:
+                return {"error": "Routing failed", "success": False}
+        
+        # Extract routing decision
+        routing_decision = routing_result.get("routing_decision", {})
+        primary_agent = routing_decision.get("primary_agent", "core_llm")
+        capabilities = routing_decision.get("capabilities_needed", [])
+        confidence = routing_decision.get("confidence", 0.7)
+        reasoning = routing_decision.get("reasoning", "")
+        
+        logger.info(f"LLM routing decision: {primary_agent} (confidence: {confidence})")
+        logger.debug(f"Routing reasoning: {reasoning}")
+        
+        # Perform specific agent processing based on the routing decision
+        if primary_agent == "ocr" and processed_input.get('input_type') == 'image':
+            # For OCR, use existing OCR agents
+            return self._route_image_content(processed_input)
+        elif primary_agent == "math_computation":
+            # For math computation, prepare for math agent
+            return {
+                "success": True,
+                "source_type": processed_input.get('input_type'),
+                "agent_type": "math_computation",
+                "capabilities": capabilities,
+                "confidence": confidence,
+                "reasoning": reasoning,
+                "result": processed_input
+            }
+        elif primary_agent == "visualization":
+            # For visualization requests
+            return {
+                "success": True,
+                "source_type": processed_input.get('input_type'),
+                "agent_type": "visualization",
+                "capabilities": capabilities,
+                "confidence": confidence,
+                "reasoning": reasoning,
+                "result": processed_input
+            }
+        elif primary_agent == "search":
+            # For search requests
+            return {
+                "success": True,
+                "source_type": processed_input.get('input_type'), 
+                "agent_type": "search",
+                "capabilities": capabilities,
+                "confidence": confidence,
+                "reasoning": reasoning,
+                "result": processed_input
+            }
+        else:
+            # Default to core_llm for everything else
+            return {
+                "success": True,
+                "source_type": processed_input.get('input_type'),
+                "agent_type": "core_llm",
+                "capabilities": capabilities,
+                "confidence": confidence,
+                "reasoning": reasoning,
+                "result": processed_input
+            }
     
     def _route_image_content(self, image_data: Dict[str, Any]) -> Dict[str, Any]:
         """

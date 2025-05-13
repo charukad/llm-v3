@@ -238,6 +238,23 @@ def register_core_agents():
     """Register the core system agents with the registry."""
     registry = get_agent_registry()
     
+    # Central Input Agent - this is the main entry point for all requests
+    registry.register_agent(
+        agent_id="central_input_agent",
+        agent_type="input",
+        capabilities=[
+            "request_processing",
+            "agent_routing",
+            "instruction_generation",
+            "workflow_coordination",
+            "context_management"
+        ],
+        metadata={
+            "model": "mistral-7b",
+            "description": "Central agent that serves as the main entry point for all multimodal requests, determining which specialized agents to use and generating detailed instructions"
+        }
+    )
+    
     # Core LLM Agent
     registry.register_agent(
         agent_id="core_llm_agent",
@@ -251,6 +268,22 @@ def register_core_agents():
         metadata={
             "model": "mistral-7b",
             "description": "Core language model agent for natural language understanding and generation"
+        }
+    )
+    
+    # LLM Router Agent
+    registry.register_agent(
+        agent_id="llm_router_agent",
+        agent_type="router",
+        capabilities=[
+            "route_requests",
+            "analyze_content",
+            "classify_input",
+            "agent_selection"
+        ],
+        metadata={
+            "model": "mistral-7b",
+            "description": "Intelligent router agent that uses LLM to analyze and route requests to appropriate specialized agents"
         }
     )
     

@@ -62,12 +62,6 @@ class RabbitMQBus:
         # Queue to track messages being sent
         self.message_queue = asyncio.Queue()
         
-        # Get the shared event loop if available
-        if hasattr(asyncio, '_mathllm_shared_loop'):
-            self.loop = getattr(asyncio, '_mathllm_shared_loop')
-        else:
-            self.loop = None
-        
     async def connect(self):
         """Connect to RabbitMQ server."""
         connection_params = {
@@ -87,13 +81,6 @@ class RabbitMQBus:
             connection_params["ssl"] = True
             connection_params["ssl_context"] = ssl_context
         
-        # Get the shared event loop or current running loop
-        if not self.loop:
-            if hasattr(asyncio, '_mathllm_shared_loop'):
-                self.loop = getattr(asyncio, '_mathllm_shared_loop')
-            else:
-                self.loop = asyncio.get_running_loop()
-        
         # Try to connect with retry
         for attempt in range(1, self.connection_attempts + 1):
             try:
@@ -111,7 +98,7 @@ class RabbitMQBus:
                 await self.processor.start()
                 
                 # Start message sender task
-                self._sender_task = self.loop.create_task(self._message_sender())
+                self._sender_task = asyncio.create_task(self._message_sender())
                 
                 logger.info(f"Connected to RabbitMQ at {self.host}:{self.port}/{self.vhost}")
                 return
@@ -150,13 +137,6 @@ class RabbitMQBus:
             
     async def _message_sender(self):
         """Background task to send messages from the queue."""
-        # Make sure we have a loop reference
-        if not self.loop:
-            if hasattr(asyncio, '_mathllm_shared_loop'):
-                self.loop = getattr(asyncio, '_mathllm_shared_loop')
-            else:
-                self.loop = asyncio.get_running_loop()
-            
         while True:
             try:
                 message, routing_key, future = await self.message_queue.get()
@@ -186,15 +166,13 @@ class RabbitMQBus:
                         size=len(message_json)
                     )
                     
-                    if future and not future.done():
-                        # Set the result in the same loop context
-                        self.loop.call_soon_threadsafe(lambda: future.set_result(True))
+                    if future:
+                        future.set_result(True)
                         
                 except Exception as e:
                     logger.error(f"Error sending message {message.header.message_id}: {str(e)}")
-                    if future and not future.done():
-                        # Set the exception in the same loop context
-                        self.loop.call_soon_threadsafe(lambda f=future, ex=e: f.set_exception(ex))
+                    if future:
+                        future.set_exception(e)
                         
                 finally:
                     self.message_queue.task_done()
@@ -205,8 +183,7 @@ class RabbitMQBus:
                 
             except Exception as e:
                 logger.error(f"Unexpected error in message sender: {str(e)}")
-                # Add a small delay to avoid tight loop if there's an error
-                await asyncio.sleep(1)
+                await asyncio.sleep(1)  # Avoid tight loop if there's an error
                 
     def _get_priority_value(self, priority: MessagePriority) -> int:
         """Convert MessagePriority enum to RabbitMQ priority value (0-9)."""
@@ -289,22 +266,15 @@ class RabbitMQBus:
             # Direct routing to agent
             routing_key = f"agent.{message.header.route.recipient}"
             
-        # Make sure we have a loop reference
-        if not self.loop:
-            if hasattr(asyncio, '_mathllm_shared_loop'):
-                self.loop = getattr(asyncio, '_mathllm_shared_loop')
-            else:
-                self.loop = asyncio.get_running_loop()
-            
         # Create a future for tracking message delivery
-        future = self.loop.create_future()
+        future = asyncio.Future()
         
         # Add to send queue
-        try:
-            await asyncio.wait_for(self.message_queue.put((message, routing_key, future)), timeout=30.0)
+        await self.message_queue.put((message, routing_key, future))
         
+        try:
             # Wait for the message to be sent
-            await asyncio.wait_for(future, timeout=30.0)
+            await future
             return True
         except Exception as e:
             logger.error(f"Failed to send message: {str(e)}")
@@ -319,16 +289,9 @@ class RabbitMQBus:
         if not message.header.correlation_id:
             logger.error("Message must have a correlation_id for send_and_wait_response")
             return None
-        
-        # Get or create loop reference
-        if not self.loop:
-            if hasattr(asyncio, '_mathllm_shared_loop'):
-                self.loop = getattr(asyncio, '_mathllm_shared_loop')
-            else:
-                self.loop = asyncio.get_running_loop()
             
         # Set up response handling
-        response_future = self.loop.create_future()
+        response_future = asyncio.Future()
         self.response_handlers[message.header.correlation_id] = response_future
         
         # Send the message

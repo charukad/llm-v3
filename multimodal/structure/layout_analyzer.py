@@ -247,29 +247,3 @@ def group_by_operators(elements: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     
     # Simple parsing for now - in a real implementation this would be more sophisticated
     return elements
-
-class MathLayoutAnalyzer:
-    """
-    Analyzer for the spatial layout of mathematical expressions.
-    
-    This class processes the positions and relationships of detected
-    mathematical symbols to determine the structure of the expression.
-    """
-    
-    def __init__(self):
-        """Initialize the math layout analyzer."""
-        logger.debug("Initializing MathLayoutAnalyzer")
-    
-    def analyze(self, symbols: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """
-        Analyze the spatial layout of mathematical symbols.
-        
-        Args:
-            symbols: List of detected symbols with properties 
-                    (x, y, width, height, text)
-        
-        Returns:
-            Dictionary containing the structured representation
-            of the mathematical expression
-        """
-        return analyze_layout(symbols)

@@ -16,10 +16,9 @@ from math_processing.expressions.normalizer import normalize_expression
 from math_processing.expressions.converters import convert_expression
 from math_processing.expressions.comparators import compare_expressions
 from math_processing.computation.sympy_wrapper import SymbolicProcessor
-from math_processing.computation.differential_equations import DifferentialEquationSolver
 
 
-class MathAgent:
+class MathComputationAgent:
     """Mathematical Computation Agent for symbolic mathematics."""
     
     def __init__(self, config: Optional[Dict[str, Any]] = None):
@@ -33,7 +32,31 @@ class MathAgent:
         self.config = config or {}
         self.id = f"math_computation_agent_{uuid.uuid4().hex[:8]}"
         self.symbolic_processor = SymbolicProcessor()
-        self.diff_eq_solver = DifferentialEquationSolver()
+    
+    def process_expression(self, expression: str, operation: str, 
+                         parameters: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """
+        Process a mathematical expression with the given operation.
+        
+        Args:
+            expression: Mathematical expression (typically in LaTeX format)
+            operation: Operation to perform (e.g., "solve", "differentiate")
+            parameters: Optional parameters for the operation
+            
+        Returns:
+            Processing result
+        """
+        # Create a computation request
+        request = {
+            "operation": operation,
+            "expression": expression,
+            "format": "latex",
+            "parameters": parameters or {},
+            "output_format": "latex"
+        }
+        
+        # Process the request
+        return self._handle_compute_request(request)
     
     def handle_message(self, message: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -144,29 +167,6 @@ class MathAgent:
                     expression, 
                     parameters.get("values", {})
                 )
-            elif operation == "solve_differential_equation":
-                result = self.diff_eq_solver.solve_differential_equation(
-                    expression,
-                    parameters.get("dependent_var"),
-                    parameters.get("independent_var"),
-                    parameters.get("initial_conditions"),
-                    parameters.get("method")
-                )
-                # For differential equations, we need to handle the result differently
-                if result.get("success", False):
-                    return {
-                        "success": True,
-                        "operation": operation,
-                        "solution": result.get("solution", {}),
-                        "method": result.get("method", ""),
-                        "steps": result.get("steps", []),
-                        "error": None
-                    }
-                else:
-                    return {
-                        "success": False,
-                        "error": result.get("error", "Unknown error in differential equation solving")
-                    }
             else:
                 return {
                     "success": False,
@@ -416,5 +416,5 @@ class MathAgent:
         from datetime import datetime
         return datetime.now().isoformat()
 
-# Create an alias for MathAgent for compatibility with imports in other modules
-MathComputationAgent = MathAgent
+# Backwards compatibility alias for older imports
+MathAgent = MathComputationAgent

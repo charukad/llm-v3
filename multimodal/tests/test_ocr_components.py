@@ -11,7 +11,6 @@ import cv2
 import numpy as np
 from multimodal.image_processing.preprocessor import ImagePreprocessor
 from multimodal.ocr.symbol_detector import MathSymbolDetector
-from multimodal.structure.layout_analyzer import MathLayoutAnalyzer
 from multimodal.latex_generator.latex_generator import LaTeXGenerator
 
 class OCRComponentsTest(unittest.TestCase):
@@ -27,7 +26,6 @@ class OCRComponentsTest(unittest.TestCase):
         # Initialize components
         self.preprocessor = ImagePreprocessor()
         self.detector = MathSymbolDetector()
-        self.layout_analyzer = MathLayoutAnalyzer()
         self.latex_generator = LaTeXGenerator()
     
     def test_image_preprocessing(self):
@@ -78,18 +76,23 @@ class OCRComponentsTest(unittest.TestCase):
         preprocessing_result = self.preprocessor.preprocess(self.test_image)
         processed_image = preprocessing_result["processed_image"]
         
-        # Detect symbols
-        symbols = self.detector.detect(processed_image)
-        
-        # Analyze layout using MathLayoutAnalyzer
-        result = self.layout_analyzer.analyze(symbols)
+        # Analyze layout
+        result = self.detector.analyze_layout(processed_image)
         
         # Check the structure of the result
-        self.assertIsInstance(result, dict)
-        self.assertIn("type", result)
+        self.assertIn("symbols", result)
+        self.assertIn("lines", result)
+        self.assertIn("structures", result)
+        self.assertIn("count", result)
+        self.assertIn("metadata", result)
         
-        # In a real test, we would check more specifically what the result should be
-        # but for this test stub we'll just check basic structure
+        # Check lines
+        lines = result["lines"]
+        self.assertIsInstance(lines, list)
+        
+        # Check structures
+        structures = result["structures"]
+        self.assertIsInstance(structures, list)
     
     def test_latex_generation(self):
         """Test the LaTeX generation component."""

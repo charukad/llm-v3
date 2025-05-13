@@ -2,16 +2,13 @@
 """
 Startup script for the Mathematical Multimodal LLM System server.
 
-This script initializes all components and starts the API server with a
-single shared event loop to prevent "attached to a different loop" errors.
+This script initializes all components and starts the API server.
 """
 
 import os
 import sys
 import logging
 import argparse
-import asyncio
-import uvicorn
 from datetime import datetime
 
 # Configure logging
@@ -31,46 +28,20 @@ os.makedirs("logs", exist_ok=True)
 os.makedirs("visualizations", exist_ok=True)
 os.makedirs("models/cache", exist_ok=True)
 
-class SingletonEventLoopPolicy(asyncio.DefaultEventLoopPolicy):
-    """A policy that ensures a single event loop is used throughout the application."""
-    
-    def __init__(self):
-        super().__init__()
-        self._shared_loop = None
-    
-    def get_event_loop(self):
-        """Return the shared event loop, creating one if necessary."""
-        if self._shared_loop is None:
-            self._shared_loop = self.new_event_loop()
-        return self._shared_loop
-    
-    def set_event_loop(self, loop):
-        """Set the event loop as the shared loop."""
-        self._shared_loop = loop
-        super().set_event_loop(loop)
-
-class CustomUvicornServer(uvicorn.Server):
-    """Custom Uvicorn server that allows for graceful shutdown."""
-    
-    def install_signal_handlers(self):
-        """Override to avoid installing signal handlers that conflict with the main loop."""
-        pass
-
-async def run_app(host, port):
-    """Run the FastAPI app with a custom server."""
-    from api.rest.server import app
-    
-    config = uvicorn.Config(app, host=host, port=port, log_level="info")
-    server = CustomUvicornServer(config)
-    
-    await server.serve()
-
 def main():
     """Main function to initialize and start the server."""
     parser = argparse.ArgumentParser(description='Start the Mathematical Multimodal LLM System server')
     parser.add_argument('--host', type=str, default='0.0.0.0', help='Host to bind the server to')
     parser.add_argument('--port', type=int, default=8000, help='Port to bind the server to')
     parser.add_argument('--debug', action='store_true', help='Enable debug mode')
+    
+    # LMStudio configuration
+    parser.add_argument('--lmstudio-url', type=str, default='http://127.0.0.1:1234', 
+                      help='URL of the LMStudio server')
+    parser.add_argument('--lmstudio-model', type=str, default='mistral-7b-instruct-v0.3', 
+                      help='Model name in LMStudio')
+    parser.add_argument('--no-lmstudio', action='store_true', 
+                      help='Disable LMStudio integration (use local models)')
     args = parser.parse_args()
     
     # Set environment variables
@@ -79,36 +50,20 @@ def main():
     os.environ['DEBUG'] = '1' if args.debug else '0'
     os.environ['VISUALIZATION_DIR'] = 'visualizations'
     
-    # Install the singleton event loop policy
-    asyncio.set_event_loop_policy(SingletonEventLoopPolicy())
-    
-    # Create and set the shared event loop
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    
-    # Store the loop in a global variable for other modules to access
-    setattr(asyncio, '_mathllm_shared_loop', loop)
+    # LMStudio environment variables
+    os.environ['LMSTUDIO_URL'] = args.lmstudio_url
+    os.environ['LMSTUDIO_MODEL'] = args.lmstudio_model
+    os.environ['USE_LMSTUDIO'] = '0' if args.no_lmstudio else '1'
     
     logger.info(f"Starting Mathematical Multimodal LLM System on {args.host}:{args.port}")
+    if not args.no_lmstudio:
+        logger.info(f"Using LMStudio at {args.lmstudio_url} with model {args.lmstudio_model}")
     
-    try:
-        # Run the application with the shared event loop
-        loop.run_until_complete(run_app(args.host, args.port))
-    except KeyboardInterrupt:
-        logger.info("Server shutdown requested by user")
-    except Exception as e:
-        logger.error(f"Error starting server: {str(e)}")
-    finally:
-        # Clean up tasks
-        pending = asyncio.all_tasks(loop)
-        for task in pending:
-            task.cancel()
-        
-        # Run the event loop until all tasks are cancelled
-        loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
-        
-        # Close the event loop
-        loop.close()
+    # Import server module
+    from api.rest.server import start_server
+    
+    # Start the server
+    start_server(host=args.host, port=args.port)
 
 if __name__ == "__main__":
     main()

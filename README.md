@@ -47,5 +47,4 @@ The project is organized around an agent-based architecture:
 ### Installation
 
 1. Clone the repository
-2. Install Python dependencies:# testllm
-# testllm
+2. Install Python dependencies:

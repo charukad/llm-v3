@@ -159,22 +159,13 @@ class MessageProcessor:
         self.processing_tasks = []
         self.running = False
         
-        # Store a reference to the loop we'll use
-        self.loop = None
-        
     async def start(self):
         """Start processing messages."""
         self.running = True
         
-        # Get the shared event loop if available, otherwise get the current loop
-        if hasattr(asyncio, '_mathllm_shared_loop'):
-            self.loop = getattr(asyncio, '_mathllm_shared_loop')
-        else:
-            self.loop = asyncio.get_running_loop()
-        
         # Create a processing task for each priority level
         for priority in MessagePriority:
-            task = self.loop.create_task(self._process_queue(priority))
+            task = asyncio.create_task(self._process_queue(priority))
             self.processing_tasks.append(task)
             
         logger.info("Message processor started")
@@ -187,24 +178,13 @@ class MessageProcessor:
         for task in self.processing_tasks:
             task.cancel()
             
-        if self.processing_tasks:
-            await asyncio.gather(*self.processing_tasks, return_exceptions=True)
-        
+        await asyncio.gather(*self.processing_tasks, return_exceptions=True)
         logger.info("Message processor stopped")
         
     async def enqueue_message(self, message: Message):
         """Enqueue a message for processing based on its priority."""
         priority = message.header.priority
-        
-        # Ensure operation takes place in the current event loop
-        if not self.loop:
-            if hasattr(asyncio, '_mathllm_shared_loop'):
-                self.loop = getattr(asyncio, '_mathllm_shared_loop')
-            else:
-                self.loop = asyncio.get_running_loop()
-        
-        await asyncio.wait_for(self.priority_queues[priority].put(message), timeout=30.0)
-        
+        await self.priority_queues[priority].put(message)
         logger.debug(f"Message {message.header.message_id} enqueued with priority {priority}")
         
     async def _process_queue(self, priority: MessagePriority):
@@ -216,22 +196,19 @@ class MessageProcessor:
                 # Get a message from the queue
                 message = await queue.get()
                 
-                try:
-                    # Process the message
-                    success = await self._process_message(message)
-                    
-                    if not success:
-                        logger.warning(f"Failed to process message {message.header.message_id}")
-                finally:
-                    # Always mark the task as done, even if processing fails
-                    queue.task_done()
+                # Process the message
+                success = await self._process_message(message)
+                
+                # Mark the task as done
+                queue.task_done()
+                
+                if not success:
+                    logger.warning(f"Failed to process message {message.header.message_id}")
                     
             except asyncio.CancelledError:
                 break
             except Exception as e:
                 logger.error(f"Error processing message from {priority} queue: {str(e)}")
-                # Add a small delay to avoid tight loop in case of recurring errors
-                await asyncio.sleep(0.1)
                 
     async def _process_message(self, message: Message) -> bool:
         """
@@ -269,16 +246,7 @@ class MessageProcessor:
                         original_message_id=message.header.message_id,
                         correlation_id=message.header.correlation_id
                     )
-                    
-                    # Ensure we're using the correct loop
-                    if not self.loop:
-                        if hasattr(asyncio, '_mathllm_shared_loop'):
-                            self.loop = getattr(asyncio, '_mathllm_shared_loop')
-                        else:
-                            self.loop = asyncio.get_running_loop()
-                    
-                    # Create a task in the correct loop
-                    self.loop.create_task(self.enqueue_message(error_response))
+                    await self.enqueue_message(error_response)
             except Exception as e2:
                 logger.error(f"Error creating error response: {str(e2)}")
                 

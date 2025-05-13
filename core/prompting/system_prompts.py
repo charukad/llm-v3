@@ -26,6 +26,9 @@ When solving problems:
 Always strive for mathematical rigor and accuracy in your responses.
 """
 
+# Alias for backward compatibility
+MATH_SYSTEM_PROMPT = BASE_MATH_SYSTEM_PROMPT
+
 # Domain-specific prompts that extend the base prompt
 
 ALGEBRA_SYSTEM_PROMPT = BASE_MATH_SYSTEM_PROMPT + """

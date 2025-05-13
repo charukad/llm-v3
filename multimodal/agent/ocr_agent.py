@@ -10,9 +10,8 @@ import os
 import time
 
 from ..ocr.symbol_detector import detect_symbols
-from ..structure.layout_analyzer import MathLayoutAnalyzer
+from ..structure.layout_analyzer import analyze_layout
 from ..latex_generator.latex_generator import generate_latex
-from ..image_processing.preprocessor import preprocess_image
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +27,6 @@ class OCRAgent:
         """
         self.config = config or {}
         self.min_confidence_threshold = self.config.get("min_confidence", 0.6)
-        self.layout_analyzer = MathLayoutAnalyzer()
         logger.info("Initialized OCR agent")
     
     def process(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
@@ -73,7 +71,7 @@ class OCRAgent:
             # If we don't have a layout structure, analyze it
             structure = image_data.get("structure", None)
             if not structure:
-                structure = self.layout_analyzer.analyze(filtered_symbols)
+                structure = analyze_layout(filtered_symbols)
             
             # Generate LaTeX from the structure
             latex = image_data.get("recognized_latex", None)
@@ -142,98 +140,3 @@ class OCRAgent:
             response["error"] = result.get("error", "Unknown error")
         
         return response
-
-class HandwritingRecognitionAgent(OCRAgent):
-    """
-    Agent specialized for handwritten mathematical expressions.
-    
-    This agent extends the basic OCR agent with capabilities 
-    specifically tuned for handwritten mathematical notation.
-    """
-    
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
-        """
-        Initialize the handwriting recognition agent.
-        
-        Args:
-            config: Optional configuration dictionary
-        """
-        super().__init__(config)
-        self.min_confidence_threshold = self.config.get("min_confidence", 0.5)  # Lower threshold for handwriting
-        self.preprocessing_options = self.config.get("preprocessing_options", {
-            "enhance_contrast": True,
-            "remove_noise": True,
-            "correct_skew": True
-        })
-        logger.info("Initialized handwriting recognition agent")
-    
-    def process(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Process handwritten mathematical input with specialized handling.
-        
-        Args:
-            input_data: Dictionary containing processed image data
-            
-        Returns:
-            Processing result with recognized LaTeX
-        """
-        # Apply enhanced preprocessing specific to handwriting
-        enhanced_input = self._enhance_for_handwriting(input_data)
-        
-        # Use the base OCR process method with enhanced input
-        result = super().process(enhanced_input)
-        
-        # Add handwriting-specific metadata if successful
-        if result.get("success", False):
-            result["agent_type"] = "handwriting_recognition"
-            result["preprocessing_applied"] = self.preprocessing_options
-        
-        return result
-    
-    def _enhance_for_handwriting(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Apply handwriting-specific enhancements to the input data.
-        
-        Args:
-            input_data: Original input data
-            
-        Returns:
-            Enhanced input data optimized for handwriting recognition
-        """
-        # Clone the input data to avoid modifying the original
-        enhanced_data = input_data.copy()
-        
-        # If we have an image path but no preprocessed image, apply preprocessing
-        image_path = enhanced_data.get("image_path")
-        if image_path and os.path.exists(image_path):
-            try:
-                # Apply preprocessing with handwriting-specific options
-                preprocessed = preprocess_image(
-                    image_path,
-                    enhance_contrast=self.preprocessing_options.get("enhance_contrast", True),
-                    remove_noise=self.preprocessing_options.get("remove_noise", True),
-                    correct_skew=self.preprocessing_options.get("correct_skew", True)
-                )
-                
-                enhanced_data["preprocessed_image"] = preprocessed
-            except Exception as e:
-                logger.warning(f"Error in handwriting enhancement: {str(e)}")
-        
-        return enhanced_data
-
-def process_handwritten_image(image_path: str, config: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-    """
-    Process a handwritten image and recognize mathematical content.
-    
-    This is a convenience function for processing a single image without
-    creating an agent instance.
-    
-    Args:
-        image_path: Path to the image file
-        config: Optional configuration dictionary
-        
-    Returns:
-        Processing result with recognized LaTeX
-    """
-    agent = HandwritingRecognitionAgent(config)
-    return agent.process({"image_path": image_path})

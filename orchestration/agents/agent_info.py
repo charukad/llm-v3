@@ -147,20 +147,6 @@ MATH_COMPUTATION_CAPABILITIES = [
         examples=[],
         agent_types=["computation"],
         domain="calculus"
-    ),
-    AgentCapability(
-        name="solve_differential_equation",
-        description="Solves a differential equation",
-        parameters={
-            "equation": "Differential equation to solve",
-            "dependent_var": "Dependent variable (e.g., 'y')",
-            "independent_var": "Independent variable (e.g., 'x')",
-            "initial_conditions": "Optional dictionary of initial conditions",
-            "method": "Optional solution method (integrating_factor, separation_of_variables, etc.)"
-        },
-        examples=[],
-        agent_types=["computation"],
-        domain="differential_equations"
     )
 ]
 

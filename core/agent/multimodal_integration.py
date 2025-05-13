@@ -51,39 +51,16 @@ class MultimodalLLMIntegration:
         # Create a prompt based on the input type and content
         prompt = self._create_prompt_from_multimodal_input(processed_input, context_data)
         
-        # Check if the LLM agent is available
-        if self.llm_agent is None:
-            logger.error("LLM agent is not available")
-            return {
-                "success": False,
-                "input_type": input_type,
-                "response": "I'm sorry, I couldn't process your request due to a technical issue.",
-                "contains_math": False,
-                "error": "LLM agent is not available",
-                "original_input": processed_input
-            }
-        
         # Process with LLM
-        try:
-            llm_result = self.llm_agent.generate_response(prompt)
-            
-            return {
-                "success": llm_result.get("success", False),
-                "input_type": input_type,
-                "response": llm_result.get("response", ""),
-                "contains_math": self._check_for_math_content(llm_result.get("response", "")),
-                "original_input": processed_input
-            }
-        except Exception as e:
-            logger.error(f"Error generating response: {str(e)}")
-            return {
-                "success": False,
-                "input_type": input_type,
-                "response": "I'm sorry, I couldn't process your request due to a technical issue.",
-                "contains_math": False,
-                "error": str(e),
-                "original_input": processed_input
-            }
+        llm_result = self.llm_agent.generate_response(prompt)
+        
+        return {
+            "success": llm_result.get("success", False),
+            "input_type": input_type,
+            "response": llm_result.get("response", ""),
+            "contains_math": self._check_for_math_content(llm_result.get("response", "")),
+            "original_input": processed_input
+        }
     
     def process_with_mathematical_result(self, processed_input: Dict[str, Any],
                                         math_result: Dict[str, Any],
@@ -103,28 +80,16 @@ class MultimodalLLMIntegration:
         prompt = self._create_prompt_with_math_result(processed_input, math_result, context_data)
         
         # Process with LLM
-        try:
-            llm_result = self.llm_agent.generate_response(prompt)
-            
-            return {
-                "success": llm_result.get("success", False),
-                "input_type": processed_input.get("input_type"),
-                "response": llm_result.get("response", ""),
-                "contains_math": True,
-                "original_input": processed_input,
-                "math_result": math_result
-            }
-        except Exception as e:
-            logger.error(f"Error generating mathematical response: {str(e)}")
-            return {
-                "success": False,
-                "input_type": processed_input.get("input_type"),
-                "response": "I'm sorry, I couldn't process your request due to a technical issue.",
-                "contains_math": True,
-                "error": str(e),
-                "original_input": processed_input,
-                "math_result": math_result
-            }
+        llm_result = self.llm_agent.generate_response(prompt)
+        
+        return {
+            "success": llm_result.get("success", False),
+            "input_type": processed_input.get("input_type"),
+            "response": llm_result.get("response", ""),
+            "contains_math": True,
+            "original_input": processed_input,
+            "math_result": math_result
+        }
     
     def generate_explanation(self, math_expression: str, 
                            computation_steps: List[Dict[str, Any]],
@@ -144,24 +109,14 @@ class MultimodalLLMIntegration:
         prompt = self._create_explanation_prompt(math_expression, computation_steps, context_data)
         
         # Process with LLM
-        try:
-            llm_result = self.llm_agent.generate_response(prompt)
-            
-            return {
-                "success": llm_result.get("success", False),
-                "response": llm_result.get("response", ""),
-                "expression": math_expression,
-                "steps": computation_steps
-            }
-        except Exception as e:
-            logger.error(f"Error generating explanation: {str(e)}")
-            return {
-                "success": False,
-                "response": "I'm sorry, I couldn't process your request due to a technical issue.",
-                "expression": math_expression,
-                "steps": computation_steps,
-                "error": str(e)
-            }
+        llm_result = self.llm_agent.generate_response(prompt)
+        
+        return {
+            "success": llm_result.get("success", False),
+            "response": llm_result.get("response", ""),
+            "expression": math_expression,
+            "steps": computation_steps
+        }
     
     def _create_prompt_from_multimodal_input(self, processed_input: Dict[str, Any],
                                           context_data: Optional[Dict[str, Any]] = None) -> str:

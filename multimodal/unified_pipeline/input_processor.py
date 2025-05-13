@@ -13,7 +13,7 @@ import logging
 from ..image_processing.preprocessor import preprocess_image
 from ..image_processing.format_handler import detect_format, convert_format
 from ..ocr.advanced_symbol_detector import detect_symbols
-from ..structure.layout_analyzer import MathLayoutAnalyzer
+from ..structure.layout_analyzer import analyze_layout
 from ..latex_generator.latex_generator import generate_latex
 
 logger = logging.getLogger(__name__)
@@ -36,7 +36,6 @@ class InputProcessor:
         self.supported_text_formats = [
             'text/plain', 'text/markdown', 'text/x-latex'
         ]
-        self.layout_analyzer = MathLayoutAnalyzer()
         logger.info("Initialized unified input processor")
     
     def process_input(self, input_data: Union[str, bytes, Dict[str, Any]], 
@@ -141,7 +140,7 @@ class InputProcessor:
             symbols = detect_symbols(preprocessed_image)
             
             # Analyze the layout structure
-            structure = self.layout_analyzer.analyze(symbols)
+            structure = analyze_layout(symbols)
             
             # Generate LaTeX from the structure
             latex = generate_latex(structure)

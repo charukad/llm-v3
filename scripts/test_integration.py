@@ -370,7 +370,7 @@ def test_agent_registry() -> bool:
             "name": "Test Agent 2",
             "description": "Another test agent for registry testing",
             "host": "localhost",
-            "port": 8000,
+            "port": 8001,
             "capabilities": ["math_query", "visualization"],
             "status": "active"
         }

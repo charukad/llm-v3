@@ -117,9 +117,9 @@ def plot_function_3d(
                 "data": {
                     "expression": str(function_expr),
                     "expression_latex": sp.latex(function_expr),
-                    "x_range": [float(x_range[0]), float(x_range[1])],
-                    "y_range": [float(y_range[0]), float(y_range[1])],
-                    "finite_points": int(np.sum(mask))
+                    "x_range": x_range,
+                    "y_range": y_range,
+                    "finite_points": np.sum(mask)
                 }
             }
         else:
@@ -141,9 +141,9 @@ def plot_function_3d(
                 "data": {
                     "expression": str(function_expr),
                     "expression_latex": sp.latex(function_expr),
-                    "x_range": [float(x_range[0]), float(x_range[1])],
-                    "y_range": [float(y_range[0]), float(y_range[1])],
-                    "finite_points": int(np.sum(mask))
+                    "x_range": x_range,
+                    "y_range": y_range,
+                    "finite_points": np.sum(mask)
                 }
             }
     
@@ -267,8 +267,8 @@ def plot_parametric_3d(
                     "x_expression": str(exprs[0]),
                     "y_expression": str(exprs[1]),
                     "z_expression": str(exprs[2]),
-                    "t_range": [float(t_range[0]), float(t_range[1])],
-                    "finite_points": int(np.sum(mask))
+                    "t_range": t_range,
+                    "finite_points": np.sum(mask)
                 }
             }
         else:
@@ -291,8 +291,8 @@ def plot_parametric_3d(
                     "x_expression": str(exprs[0]),
                     "y_expression": str(exprs[1]),
                     "z_expression": str(exprs[2]),
-                    "t_range": [float(t_range[0]), float(t_range[1])],
-                    "finite_points": int(np.sum(mask))
+                    "t_range": t_range,
+                    "finite_points": np.sum(mask)
                 }
             }
     

@@ -25,15 +25,15 @@ class TestInputProcessor(unittest.TestCase):
     
     @patch('multimodal.unified_pipeline.input_processor.preprocess_image')
     @patch('multimodal.unified_pipeline.input_processor.detect_symbols')
-    @patch('multimodal.structure.layout_analyzer.MathLayoutAnalyzer.analyze')
+    @patch('multimodal.unified_pipeline.input_processor.analyze_layout')
     @patch('multimodal.unified_pipeline.input_processor.generate_latex')
-    def test_process_image_input(self, mock_generate_latex, mock_analyze, 
+    def test_process_image_input(self, mock_generate_latex, mock_analyze_layout, 
                                mock_detect_symbols, mock_preprocess_image):
         """Test processing of image input."""
         # Setup mocks
         mock_preprocess_image.return_value = "preprocessed_image"
         mock_detect_symbols.return_value = [{"text": "x", "position": [10, 10, 20, 20], "confidence": 0.95}]
-        mock_analyze.return_value = {"type": "expression"}
+        mock_analyze_layout.return_value = {"type": "expression"}
         mock_generate_latex.return_value = "x"
         
         # Create a temporary file for testing
@@ -52,7 +52,7 @@ class TestInputProcessor(unittest.TestCase):
             # Verify mock calls
             mock_preprocess_image.assert_called_once()
             mock_detect_symbols.assert_called_once()
-            mock_analyze.assert_called_once()
+            mock_analyze_layout.assert_called_once()
             mock_generate_latex.assert_called_once()
             
         finally:

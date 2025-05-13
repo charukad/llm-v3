@@ -97,6 +97,19 @@ def get_cot_template(domain: str = "general") -> str:
     """
     return DOMAIN_COT_TEMPLATES.get(domain.lower(), BASE_COT_TEMPLATE)
 
+def generate_cot_prompt(prompt: str, system_prompt: str) -> str:
+    """
+    Generate a Chain-of-Thought prompt by combining system prompt and user prompt.
+    
+    Args:
+        prompt: User input prompt
+        system_prompt: System prompt defining model behavior
+        
+    Returns:
+        Combined prompt with CoT instructions
+    """
+    return f"{system_prompt}\n\nWhen answering, think step-by-step and show your reasoning clearly.\n\n{prompt}"
+
 def format_cot_prompt(
     question: str,
     domain: str = "general",

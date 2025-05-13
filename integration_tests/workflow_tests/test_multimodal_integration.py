@@ -71,9 +71,9 @@ class TestMultimodalIntegration(unittest.TestCase):
         return files
     
     @patch('multimodal.ocr.advanced_symbol_detector.detect_symbols')
-    @patch('multimodal.structure.layout_analyzer.MathLayoutAnalyzer.analyze')
+    @patch('multimodal.structure.layout_analyzer.analyze_layout')
     @patch('multimodal.latex_generator.latex_generator.generate_latex')
-    def test_end_to_end_image_processing(self, mock_generate_latex, mock_analyze, mock_detect_symbols):
+    def test_end_to_end_image_processing(self, mock_generate_latex, mock_analyze_layout, mock_detect_symbols):
         """Test end-to-end processing of an image input."""
         # Set up mocks
         mock_detect_symbols.return_value = [
@@ -83,7 +83,7 @@ class TestMultimodalIntegration(unittest.TestCase):
             {"text": "y", "position": [50, 10, 60, 20], "confidence": 0.92}
         ]
         
-        mock_analyze.return_value = {
+        mock_analyze_layout.return_value = {
             "type": "expression",
             "elements": [
                 {"type": "variable", "value": "x"},
@@ -166,9 +166,9 @@ class TestMultimodalIntegration(unittest.TestCase):
         self.assertTrue("Find the derivative" in entity.get("text", ""))
     
     @patch('multimodal.ocr.advanced_symbol_detector.detect_symbols')
-    @patch('multimodal.structure.layout_analyzer.MathLayoutAnalyzer.analyze')
+    @patch('multimodal.structure.layout_analyzer.analyze_layout')
     @patch('multimodal.latex_generator.latex_generator.generate_latex')
-    def test_ambiguity_handling(self, mock_generate_latex, mock_analyze, mock_detect_symbols):
+    def test_ambiguity_handling(self, mock_generate_latex, mock_analyze_layout, mock_detect_symbols):
         """Test handling of ambiguous input."""
         # Set up mocks for an ambiguous image
         mock_detect_symbols.return_value = [
@@ -178,7 +178,7 @@ class TestMultimodalIntegration(unittest.TestCase):
             {"text": "y", "position": [50, 10, 60, 20], "confidence": 0.92}
         ]
         
-        mock_analyze.return_value = {
+        mock_analyze_layout.return_value = {
             "type": "expression",
             "elements": [
                 {"type": "variable", "value": "x"},

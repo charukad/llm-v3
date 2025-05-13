@@ -1,120 +1,135 @@
 """
-LMStudio server connection validator.
+Mistral 7B model downloader.
 
-This module checks connectivity with the LMStudio server running the Mistral model.
+This module handles downloading and verifying the Mistral 7B model from Hugging Face.
 """
 import os
 import logging
-import requests
-import json
 from pathlib import Path
 from typing import Optional, Dict, Any, Union
 
+from huggingface_hub import hf_hub_download, snapshot_download
+from huggingface_hub.utils import HFValidationError, RepositoryNotFoundError
+
 logger = logging.getLogger(__name__)
 
-class LMStudioValidator:
-    """Handles checking connectivity with the LMStudio server."""
+class ModelDownloader:
+    """Handles downloading and verifying model files from Hugging Face."""
     
-    def __init__(self, api_url: str = "http://127.0.0.1:1234"):
+    def __init__(self, cache_dir: Optional[str] = None):
         """
-        Initialize the LMStudio validator.
+        Initialize the model downloader.
         
         Args:
-            api_url: URL of the LMStudio API server
+            cache_dir: Directory to cache downloaded models
         """
-        self.api_url = api_url
-        logger.info(f"LMStudio server URL: {api_url}")
+        self.cache_dir = cache_dir or os.path.join(os.path.expanduser("~"), ".cache", "math_llm_system", "models")
+        os.makedirs(self.cache_dir, exist_ok=True)
+        logger.info(f"Model cache directory: {self.cache_dir}")
     
-    def check_connectivity(self) -> bool:
+    def download_mistral_7b(self, revision: str = "main") -> str:
         """
-        Check connectivity with the LMStudio server.
+        Download the Mistral 7B model.
         
+        Args:
+            revision: Model revision to download (branch, tag, or commit hash)
+            
         Returns:
-            True if connection is successful, False otherwise
+            Path to the downloaded model
+            
+        Raises:
+            ValueError: If download fails
         """
-        logger.info(f"Checking connectivity with LMStudio server at {self.api_url}...")
+        model_id = "mistralai/Mistral-7B-v0.1"
+        logger.info(f"Downloading Mistral 7B model from {model_id}...")
         
         try:
-            response = requests.get(f"{self.api_url}/v1/models")
-            
-            if response.status_code == 200:
-                models = response.json()
-                logger.info(f"Connected to LMStudio server successfully. Available models: {models}")
-                return True
-            else:
-                logger.error(f"Failed to connect to LMStudio server: HTTP {response.status_code}")
-                return False
-                
-        except Exception as e:
-            logger.error(f"Failed to connect to LMStudio server: {str(e)}")
-            return False
-    
-    def verify_mistral_model_availability(self) -> bool:
-        """
-        Verify that the Mistral 7B model is available on the LMStudio server.
-        
-        Returns:
-            True if the model is available, False otherwise
-        """
-        logger.info("Checking Mistral model availability...")
-        
-        try:
-            response = requests.get(f"{self.api_url}/v1/models")
-            
-            if response.status_code == 200:
-                models = response.json()
-                
-                # Check if Mistral model is in the list
-                for model in models.get("data", []):
-                    model_id = model.get("id", "")
-                    if "mistral" in model_id.lower():
-                        logger.info(f"Found Mistral model: {model_id}")
-                        return True
-                
-                logger.warning("No Mistral model found in available models")
-                return False
-            else:
-                logger.error(f"Failed to get models list: HTTP {response.status_code}")
-                return False
-                
-        except Exception as e:
-            logger.error(f"Error checking model availability: {str(e)}")
-            return False
-    
-    def test_generation(self) -> bool:
-        """
-        Test generation with the Mistral model.
-        
-        Returns:
-            True if generation is successful, False otherwise
-        """
-        logger.info("Testing generation with Mistral model...")
-        
-        try:
-            payload = {
-                "model": "mistral-7b-instruct-v0.3",
-                "prompt": "<s>[INST] Hello, how are you? [/INST]",
-                "max_tokens": 50,
-                "temperature": 0.7
-            }
-            
-            response = requests.post(
-                f"{self.api_url}/v1/completions",
-                headers={"Content-Type": "application/json"},
-                data=json.dumps(payload),
-                timeout=10
+            # Download the model
+            model_path = snapshot_download(
+                repo_id=model_id,
+                revision=revision,
+                cache_dir=self.cache_dir,
+                local_files_only=False,
+                token=os.environ.get("HF_TOKEN")  # In case the model requires authentication
             )
             
-            if response.status_code == 200:
-                output = response.json()
-                generated_text = output["choices"][0]["text"].strip()
-                logger.info(f"Generation test successful. Response: {generated_text[:50]}...")
-                return True
-            else:
-                logger.error(f"Generation test failed: HTTP {response.status_code}")
-                logger.error(response.text)
-                return False
-                
+            logger.info(f"Model downloaded successfully to {model_path}")
+            return model_path
+            
+        except (HFValidationError, RepositoryNotFoundError) as e:
+            logger.error(f"Failed to download model: {e}")
+            raise ValueError(f"Failed to download Mistral 7B model: {e}")
         except Exception as e:
-            logger.error(f"Error testing generation: {str(e)}")
-            return False
+            logger.error(f"Unexpected error downloading model: {e}")
+            raise ValueError(f"Unexpected error downloading Mistral 7B model: {e}")
+    
+    def download_tokenizer(self, model_id: str = "mistralai/Mistral-7B-v0.1") -> str:
+        """
+        Download the tokenizer for the model.
+        
+        Args:
+            model_id: Model ID on Hugging Face
+            
+        Returns:
+            Path to the downloaded tokenizer
+        """
+        logger.info(f"Downloading tokenizer from {model_id}...")
+        
+        try:
+            # Download tokenizer files
+            tokenizer_path = Path(self.cache_dir) / model_id
+            os.makedirs(tokenizer_path, exist_ok=True)
+            
+            for file in ["tokenizer.json", "tokenizer_config.json", "special_tokens_map.json"]:
+                hf_hub_download(
+                    repo_id=model_id,
+                    filename=file,
+                    cache_dir=self.cache_dir,
+                    token=os.environ.get("HF_TOKEN")
+                )
+            
+            logger.info(f"Tokenizer downloaded successfully to {tokenizer_path}")
+            return str(tokenizer_path)
+            
+        except Exception as e:
+            logger.error(f"Failed to download tokenizer: {e}")
+            raise ValueError(f"Failed to download tokenizer: {e}")
+    
+    def verify_model_files(self, model_path: str) -> bool:
+        """
+        Verify that all necessary model files are present.
+        
+        Args:
+            model_path: Path to the model directory
+            
+        Returns:
+            True if all files are present, False otherwise
+        """
+        required_files = [
+            "config.json",
+            "pytorch_model.bin" if not os.path.exists(os.path.join(model_path, "pytorch_model-00001-of-00003.bin")) else None,
+            "tokenizer.json",
+            "tokenizer_config.json"
+        ]
+        
+        # Remove None values (for sharded models)
+        required_files = [f for f in required_files if f is not None]
+        
+        # Check for sharded model files
+        if not os.path.exists(os.path.join(model_path, "pytorch_model.bin")):
+            # Check if this is a sharded model
+            import glob
+            shards = glob.glob(os.path.join(model_path, "pytorch_model-*.bin"))
+            if not shards:
+                logger.error("No model weights found (neither single file nor shards)")
+                return False
+        
+        # Check each required file
+        for file in required_files:
+            file_path = os.path.join(model_path, file)
+            if not os.path.exists(file_path):
+                logger.error(f"Required file not found: {file}")
+                return False
+        
+        logger.info("All required model files are present")
+        return True

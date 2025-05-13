@@ -10,9 +10,9 @@ from typing import Dict, Any, List, Optional, Union
 import os
 import time
 
-from ..mistral.inference import MistralInference
-from ..prompting.system_prompts import BASE_MATH_SYSTEM_PROMPT
-from ..prompting.chain_of_thought import format_cot_prompt
+from ..mistral.inference import InferenceEngine
+from ..prompting.system_prompts import MATH_SYSTEM_PROMPT
+from ..prompting.chain_of_thought import generate_cot_prompt
 
 logger = logging.getLogger(__name__)
 
@@ -28,128 +28,67 @@ class CoreLLMAgent:
         """
         self.config = config or {}
         
-        # Get LMStudio server URL from environment or config
-        lmstudio_url = os.environ.get("LMSTUDIO_URL", "http://127.0.0.1:1234")
-        logger.info(f"Using LMStudio server at: {lmstudio_url}")
+        # Get settings from environment variables or config
+        model_path = self.config.get("model_path", "mistralai/Mistral-7B-v0.1")
+        lmstudio_url = self.config.get("lmstudio_url", os.environ.get('LMSTUDIO_URL', 'http://127.0.0.1:1234'))
+        lmstudio_model = self.config.get("lmstudio_model", os.environ.get('LMSTUDIO_MODEL', 'mistral-7b-instruct-v0.3'))
+        use_lmstudio_str = os.environ.get('USE_LMSTUDIO', '1')
+        use_lmstudio = self.config.get("use_lmstudio", use_lmstudio_str == '1')
         
-        # Initialize the inference engine with LMStudio server
-        self.inference = MistralInference(
-            api_url=lmstudio_url,
-            n_ctx=2048  # Context window size
+        logger.info(f"LLM Agent config: LMStudio enabled: {use_lmstudio}, URL: {lmstudio_url}, Model: {lmstudio_model}")
+        
+        # Initialize inference engine
+        self.inference = InferenceEngine(
+            model_path=model_path,
+            use_lmstudio=use_lmstudio,
+            lmstudio_url=lmstudio_url,
+            lmstudio_model=lmstudio_model
         )
         
-        logger.info(f"Initialized Core LLM Agent with LMStudio server")
+        logger.info(f"Initialized Core LLM Agent with model: {lmstudio_model if use_lmstudio else model_path}")
     
-    def generate_response(
-        self,
-        prompt: str,
-        system_prompt: Optional[str] = None,
-        temperature: float = 0.1,
-        max_tokens: int = 1024,
-        stop_sequences: Optional[List[str]] = None,
-        use_cot: bool = True
-    ) -> Dict[str, Any]:
+    def generate_response(self, prompt: str, system_prompt: Optional[str] = None,
+                        use_cot: bool = True) -> Dict[str, Any]:
         """
-        Generate a response to a prompt.
+        Generate a response from the LLM.
         
         Args:
-            prompt: The prompt to respond to
-            system_prompt: Optional system prompt to prepend
-            temperature: Sampling temperature
-            max_tokens: Maximum tokens to generate
-            stop_sequences: Optional sequences to stop generation
-            use_cot: Whether to use chain of thought (not implemented)
+            prompt: User prompt
+            system_prompt: Optional system prompt to override default
+            use_cot: Whether to use chain-of-thought prompting
             
         Returns:
-            Dictionary containing the response and success status
+            Dictionary containing the generated response
         """
+        start_time = time.time()
+        
         try:
-            # Prepare full prompt
+            # Use default math system prompt if not provided
             if system_prompt is None:
-                system_prompt = BASE_MATH_SYSTEM_PROMPT
+                system_prompt = MATH_SYSTEM_PROMPT
             
-            # Format full prompt for Mistral Instruct format
-            full_prompt = f"<s>[INST] {system_prompt}\n\nQuestion: {prompt} [/INST]"
+            # Apply chain of thought if requested
+            if use_cot:
+                full_prompt = generate_cot_prompt(prompt, system_prompt)
+            else:
+                full_prompt = f"{system_prompt}\n\n{prompt}"
             
             # Generate response
-            response = self.inference.generate(
-                prompt=full_prompt,
-                max_tokens=max_tokens,
-                temperature=temperature,
-                stop_sequences=stop_sequences,
-            )
+            response = self.inference.generate(full_prompt)
+            
+            processing_time = time.time() - start_time
             
             return {
                 "success": True,
-                "response": response.strip()
+                "response": response,
+                "processing_time_ms": round(processing_time * 1000, 2)
             }
+            
         except Exception as e:
-            logger.error(f"Error generating response: {str(e)}")
+            logger.error(f"Error in LLM response generation: {str(e)}")
             return {
                 "success": False,
-                "error": str(e)
-            }
-    
-    def generate_math_explanation(
-        self,
-        query: str,
-        query_analysis: Dict[str, Any],
-        computation_result: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, Any]:
-        """
-        Generate a mathematical explanation for a query.
-        
-        Args:
-            query: The mathematical query to explain
-            query_analysis: Analysis of the query
-            computation_result: Optional computation result
-            
-        Returns:
-            Dictionary containing the explanation
-        """
-        # Prepare the prompt
-        prompt_parts = [
-            "Please provide a clear mathematical explanation for the following query.",
-            f"\nQuery: {query}"
-        ]
-        
-        if query_analysis:
-            domain = query_analysis.get("domain", "")
-            if domain:
-                prompt_parts.append(f"\nMathematical Domain: {domain}")
-            
-            operations = query_analysis.get("operations", [])
-            if operations:
-                prompt_parts.append("\nRequired Operations:")
-                for op in operations:
-                    prompt_parts.append(f"- {op}")
-        
-        if computation_result:
-            result = computation_result.get("result", "")
-            steps = computation_result.get("steps", [])
-            
-            if result:
-                prompt_parts.append(f"\nFinal Result: {result}")
-            
-            if steps:
-                prompt_parts.append("\nComputation Steps:")
-                for i, step in enumerate(steps, 1):
-                    prompt_parts.append(f"{i}. {step}")
-        
-        prompt = "\n".join(prompt_parts)
-        
-        # Generate the explanation
-        explanation = self.generate_response(
-            prompt=prompt,
-            system_prompt="You are a mathematical expert providing clear and detailed explanations.",
-            temperature=0.3,  # Slightly higher temperature for more natural explanations
-            max_tokens=1024
-        )
-        
-        return {
-            "success": True,
-            "explanation": explanation,
-            "query": query
+                "error": f"Generation error: {str(e)}"
             }
     
     def process_message(self, message: Dict[str, Any]) -> Dict[str, Any]:
@@ -162,27 +101,13 @@ class CoreLLMAgent:
         Returns:
             Processing result
         """
-        # Extract message body and type
+        # Extract message body
         body = message.get("body", {})
-        message_type = message.get("header", {}).get("message_type")
         
-        if message_type == "generate_math_explanation":
-            # Handle math explanation request
-            query = body.get("query", "")
-            query_analysis = body.get("analysis", {})
-            computation_result = body.get("computation_result")
-            
-            if not query:
-                return {
-                    "success": False,
-                    "error": "No query provided in message"
-                }
-            
-            return self.generate_math_explanation(query, query_analysis, computation_result)
-        
-        # Handle other message types
+        # Extract prompt from message body
         prompt = body.get("prompt", "")
         system_prompt = body.get("system_prompt")
+        use_cot = body.get("use_cot", True)
         
         if not prompt:
             return {
@@ -191,14 +116,13 @@ class CoreLLMAgent:
             }
         
         # Generate response
-        response = self.generate_response(prompt, system_prompt)
+        result = self.generate_response(prompt, system_prompt, use_cot)
         
-        return {
-            "success": True,
-            "response": response,
-            "message_id": message.get("header", {}).get("message_id"),
-            "message_type": message_type
-        }
+        # Add message metadata to result
+        result["message_id"] = message.get("header", {}).get("message_id")
+        result["message_type"] = message.get("header", {}).get("message_type")
+        
+        return result
     
     def classify_mathematical_domain(self, text: str) -> Dict[str, Any]:
         """
@@ -337,20 +261,3 @@ And so on. If no mathematical expressions are found, respond with "No expression
             "expressions": expressions,
             "expression_count": len(expressions)
         }
-
-def initialize_llm_agent(config: Optional[Dict[str, Any]] = None) -> CoreLLMAgent:
-    """
-    Initialize and return a CoreLLMAgent instance.
-    
-    Args:
-        config: Optional configuration for the LLM agent
-        
-    Returns:
-        Initialized CoreLLMAgent instance
-    """
-    try:
-        agent = CoreLLMAgent(config)
-        return agent
-    except Exception as e:
-        logger.error(f"Error initializing LLM agent: {str(e)}")
-        return None

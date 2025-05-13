@@ -18,6 +18,7 @@ class AgentRegistry:
     def __init__(self):
         self.agents: Dict[str, Dict[str, Any]] = {}
         self.capabilities: Dict[str, Set[str]] = {}
+        self.services: Dict[str, Dict[str, Any]] = {}
         
     def register_agent(
         self,
@@ -57,23 +58,35 @@ class AgentRegistry:
         Register a service with the registry.
         
         Args:
-            service_id: The identifier for the service
-            service_info: Information about the service, including its instance
+            service_id: Service identifier
+            service_info: Service information including instance
         """
-        # Store service like an agent with special type
-        self.agents[service_id] = {
-            "agent_id": service_id,
-            "agent_type": "service",
-            "capabilities": [],
-            "endpoint": None,
-            "metadata": service_info.get("metadata", {}),
-            "status": "registered",
-            "registered_at": datetime.datetime.now().isoformat(),
-            "last_seen": datetime.datetime.now().isoformat(),
-            "instance": service_info.get("instance")
-        }
+        self.services[service_id] = service_info
+        logger.info(f"Registered service: {service_id}")
         
-        logger.info(f"Registered service {service_id}")
+    def get_service_info(self, service_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Get service information by ID.
+        
+        Args:
+            service_id: Service identifier
+            
+        Returns:
+            Service information or None if not found
+        """
+        return self.services.get(service_id)
+        
+    def get_agent_info(self, agent_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Get agent information by ID.
+        
+        Args:
+            agent_id: Agent identifier
+            
+        Returns:
+            Agent information or None if not found
+        """
+        return self.agents.get(agent_id)
         
     def deregister_agent(self, agent_id: str):
         """Deregister an agent."""
@@ -120,18 +133,6 @@ class AgentRegistry:
         """Get an agent by ID."""
         return self.agents.get(agent_id)
         
-    def get_agent_info(self, agent_id: str) -> Optional[Dict[str, Any]]:
-        """Get agent information by ID, including instance if available."""
-        agent = self.get_agent(agent_id)
-        if agent and "instance" not in agent:
-            agent = agent.copy()
-            agent["instance"] = None
-        return agent
-
-    def get_service_info(self, service_id: str) -> Optional[Dict[str, Any]]:
-        """Get service information by ID."""
-        # For now, we'll use the same logic as get_agent
-        return self.get_agent(service_id)
 
     def find_agents_by_capability(self, capability: str) -> List[str]:
         """Find agents that support a specific capability."""
@@ -197,13 +198,16 @@ class AgentRegistry:
         """Convert registry to dictionary representation."""
         return {
             "agents": {agent_id: agent_info.copy() for agent_id, agent_info in self.agents.items()},
-            "capabilities": {capability: list(agents) for capability, agents in self.capabilities.items()}
+            "capabilities": {capability: list(agents) for capability, agents in self.capabilities.items()},
+            "services": {service_id: {k: v for k, v in service_info.items() if k != "instance"} 
+                        for service_id, service_info in self.services.items()}
         }
         
     def from_dict(self, data: Dict[str, Any]):
         """Load registry from dictionary representation."""
         self.agents = {}
         self.capabilities = {}
+        self.services = {}
         
         # Load agents
         for agent_id, agent_info in data.get("agents", {}).items():
@@ -212,23 +216,10 @@ class AgentRegistry:
         # Load capabilities
         for capability, agent_ids in data.get("capabilities", {}).items():
             self.capabilities[capability] = set(agent_ids)
-
-    def register_agent_instance(self, agent_id: str, instance: Any):
-        """
-        Register an agent instance with the registry.
-        
-        Args:
-            agent_id: The agent identifier
-            instance: The agent instance
-        """
-        if agent_id not in self.agents:
-            logger.warning(f"Agent {agent_id} not registered. Register the agent first.")
-            return
-        
-        # Store the instance
-        self.agents[agent_id]["instance"] = instance
-        logger.info(f"Registered instance for agent {agent_id}")
-        return True
+            
+        # Load services (instances must be added separately)
+        for service_id, service_info in data.get("services", {}).items():
+            self.services[service_id] = service_info.copy()
 
 
 # Create a singleton instance
@@ -255,10 +246,7 @@ def register_core_agents():
             "classify_query",
             "generate_response",
             "explain_math",
-            "translate_natural_language_to_latex",
-            "generate_math_explanation",
-            "analyze_math_query",
-            "compute_math"
+            "translate_natural_language_to_latex"
         ],
         metadata={
             "model": "mistral-7b",

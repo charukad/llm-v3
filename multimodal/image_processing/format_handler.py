@@ -188,39 +188,3 @@ def convert_format(file_path: str, format_info: Optional[Dict[str, Any]] = None)
             "error": f"Error converting format: {str(e)}",
             "original_path": file_path
         }
-
-# Add FormatHandler class to wrap the functions
-class FormatHandler:
-    """Class to handle image format detection and conversion."""
-    
-    @staticmethod
-    def detect_format(file_path: str) -> Dict[str, Any]:
-        """
-        Detect the format of a file.
-        
-        Args:
-            file_path: Path to the file
-            
-        Returns:
-            Dictionary containing format information
-        """
-        return detect_format(file_path)
-    
-    @staticmethod
-    def convert_format(file_path: str, format_info: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        """
-        Convert a file to a standard image format.
-        
-        Args:
-            file_path: Path to the file
-            format_info: Optional format information from detect_format
-            
-        Returns:
-            Dictionary containing conversion results
-        """
-        return convert_format(file_path, format_info)
-    
-    @staticmethod
-    def is_pdf_available() -> bool:
-        """Check if PDF handling is available."""
-        return PYMUPDF_AVAILABLE

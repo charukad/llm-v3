@@ -112,10 +112,6 @@ async def process_input(input_request: InputRequest):
     """
     start_time = datetime.now()
     
-    # Validate content
-    if not input_request.content:
-        raise HTTPException(status_code=400, detail="Empty content is not allowed")
-    
     try:
         input_type = input_request.input_type
         content = input_request.content
@@ -248,7 +244,7 @@ async def process_input(input_request: InputRequest):
             
             # Start workflow in orchestration manager
             if input_request.conversation_id:
-                workflow_id = await orchestration_manager.start_workflow(
+                workflow_id = orchestration_manager.start_workflow(
                     workflow_type="multimodal_processing",
                     initial_data={
                         "processed_input": processed_input,
@@ -265,9 +261,6 @@ async def process_input(input_request: InputRequest):
         
         return processed_input
         
-    except HTTPException as e:
-        # Re-raise HTTP exceptions
-        raise e
     except Exception as e:
         logger.error(f"Error processing input: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error processing input: {str(e)}")

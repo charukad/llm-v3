@@ -8,11 +8,7 @@ import traceback
 import logging
 import time
 from typing import Dict, Any, Optional, Callable
-
-# Use standard Python logging instead
-def get_logger(name):
-    """Simple wrapper to get a logger with the given name."""
-    return logging.getLogger(name)
+from math_llm_system.orchestration.monitoring.logger import get_logger
 
 logger = get_logger("api.error_handler")
 

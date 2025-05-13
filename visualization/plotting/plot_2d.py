@@ -86,8 +86,8 @@ def plot_function_2d(
             plot_data.append({
                 "expression": str(func_expr),
                 "expression_latex": sp.latex(func_expr),
-                "x_range": [float(x_range[0]), float(x_range[1])],
-                "valid_points": int(np.sum(mask))
+                "x_range": x_range,
+                "valid_points": np.sum(mask)
             })
             
         except Exception as e:
@@ -170,8 +170,6 @@ def plot_multiple_functions_2d(
     
     # Setup colors
     colors = kwargs.get('colors', ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b'])
-    if colors is None:
-        colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b']
     colors = colors * (len(functions) // len(colors) + 1)
     
     # Plot each function
@@ -202,8 +200,8 @@ def plot_multiple_functions_2d(
                 "expression": str(func_expr),
                 "expression_latex": sp.latex(func_expr),
                 "label": label,
-                "x_range": [float(x_range[0]), float(x_range[1])],
-                "valid_points": int(np.sum(mask))
+                "x_range": x_range,
+                "valid_points": np.sum(mask)
             })
             
         except Exception as e:

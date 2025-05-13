@@ -24,18 +24,8 @@ from ..monitoring.metrics import get_registry
 from ..agents.registry import get_agent_registry
 from ..agents.load_balancer import get_load_balancer
 from .workflow_registry import get_workflow_registry, WorkflowDefinition
-from .workflow_context import WorkflowContext
 
-# Configure logging to match server format
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s [%(levelname)s] %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S,%f',
-    handlers=[
-        logging.StreamHandler()
-    ]
-)
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class WorkflowExecutionStatus:
@@ -545,14 +535,6 @@ class WorkflowEngine:
         # Initialize metrics
         self._setup_metrics()
         
-        self.workflows = {}
-        self._lock = asyncio.Lock()
-        
-        # Will store the event loop once we're in an async context
-        self.loop = None
-        
-        logger.info("WorkflowEngine initialized")
-        
     async def start(self):
         """Start the workflow engine."""
         logger.info("Starting workflow engine")
@@ -682,10 +664,6 @@ class WorkflowEngine:
         Returns:
             Tuple of (workflow_id, workflow_execution if wait_for_completion else None)
         """
-        # Ensure we have a loop reference
-        if self.loop is None:
-            self.loop = asyncio.get_running_loop()
-            
         # Check if the workflow type is registered
         if not self.workflow_registry.has_workflow(workflow_type):
             raise ValueError(f"Unknown workflow type: {workflow_type}")
@@ -701,16 +679,16 @@ class WorkflowEngine:
         # Register the workflow
         self.active_workflows[workflow.workflow_id] = workflow
         
-        # Start the workflow execution in a task to avoid blocking
-        self.loop.create_task(self._execute_workflow(workflow))
-        
         # Record metrics
         self.metrics.counter("workflow.executions.total").increment()
         self.metrics.gauge("workflow.executions.active").set(len(self.active_workflows))
         
+        # Start the workflow
+        await self._execute_workflow(workflow)
+        
         if wait_for_completion:
             # Wait for workflow completion
-            completion_future = self.loop.create_future()
+            completion_future = asyncio.Future()
             self.completion_futures[workflow.workflow_id] = completion_future
             
             try:
@@ -1158,10 +1136,6 @@ class WorkflowEngine:
         Returns:
             True if resumed successfully, False otherwise
         """
-        # Ensure we have a loop reference
-        if self.loop is None:
-            self.loop = asyncio.get_running_loop()
-            
         workflow = self.active_workflows.get(workflow_id)
         if not workflow or workflow.status != WorkflowExecutionStatus.PAUSED:
             return False
@@ -1179,7 +1153,7 @@ class WorkflowEngine:
             return False
             
         # Continue workflow execution
-        self.loop.create_task(self._continue_workflow(workflow, workflow_def))
+        asyncio.create_task(self._continue_workflow(workflow, workflow_def))
         
         return True
         
@@ -1384,10 +1358,6 @@ class WorkflowEngine:
         asyncio.create_task(self._continue_workflow(workflow, workflow_def))
         
         return True
-
-    async def shutdown(self):
-        """Shutdown the workflow engine."""
-        await self.stop()
 
 
 # Create singleton instance

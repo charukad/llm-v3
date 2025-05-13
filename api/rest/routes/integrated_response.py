@@ -2,15 +2,13 @@
 API routes for integrated response generation
 """
 
-from fastapi import APIRouter, Body, HTTPException, Query, Depends
+from fastapi import APIRouter, Body, HTTPException, Query
 from pydantic import BaseModel
 from typing import Dict, List, Optional, Union, Any
 import logging
 
 from math_processing.formatting.latex_formatter import LatexFormatter
 from math_processing.formatting.response_formatter import ResponseFormatter
-from orchestration.workflow.end_to_end_workflows import EndToEndWorkflowManager
-from orchestration.agents.registry import AgentRegistry
 
 router = APIRouter(prefix="/responses", tags=["responses"])
 
@@ -18,18 +16,6 @@ router = APIRouter(prefix="/responses", tags=["responses"])
 logger = logging.getLogger(__name__)
 latex_formatter = LatexFormatter()
 response_formatter = ResponseFormatter(latex_formatter)
-
-# Initialize workflow manager
-def get_workflow_manager():
-    """Get or initialize workflow manager instance."""
-    try:
-        # This should be singleton or properly cached in production
-        registry = AgentRegistry()
-        workflow_manager = EndToEndWorkflowManager(registry)
-        return workflow_manager
-    except Exception as e:
-        logger.error(f"Failed to initialize workflow manager: {str(e)}")
-        raise HTTPException(status_code=500, detail="Internal server error: workflow manager initialization failed")
 
 
 class IntegratedResponseRequest(BaseModel):
@@ -187,55 +173,4 @@ async def preview_response_formatting(
         raise HTTPException(
             status_code=500, 
             detail=f"Failed to preview response formatting: {str(e)}"
-        )
-
-
-class QueryAnalysisRequest(BaseModel):
-    """Request model for query analysis."""
-    query: str
-    context_id: Optional[str] = None
-    conversation_id: Optional[str] = None
-
-
-class QueryAnalysisResponse(BaseModel):
-    """Response model for query analysis."""
-    success: bool
-    query: str
-    analysis: Optional[Dict[str, Any]] = None
-    error: Optional[str] = None
-    execution_time: Optional[float] = None
-
-
-@router.post("/analyze-query", response_model=QueryAnalysisResponse)
-async def analyze_query(
-    request: QueryAnalysisRequest,
-    workflow_manager: EndToEndWorkflowManager = Depends(get_workflow_manager)
-):
-    """
-    Analyze a mathematical query to identify required operations and agents.
-    
-    This endpoint performs detailed analysis of the query to determine:
-    1. The mathematical operations needed (symbolic, numerical, etc.)
-    2. The specific agents that should be activated to handle the query
-    3. The structure of the query and any sub-problems it contains
-    
-    Returns a detailed analysis that can be used to understand how the query
-    will be processed by the system before submitting it for full processing.
-    """
-    try:
-        # Call the query_analysis method from the workflow manager
-        result = workflow_manager.query_analysis(
-            query=request.query,
-            context_id=request.context_id,
-            conversation_id=request.conversation_id
-        )
-        
-        return QueryAnalysisResponse(**result)
-        
-    except Exception as e:
-        logger.error(f"Error analyzing query: {str(e)}")
-        return QueryAnalysisResponse(
-            success=False,
-            query=request.query,
-            error=f"Failed to analyze query: {str(e)}"
         )

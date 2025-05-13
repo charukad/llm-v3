@@ -5,7 +5,6 @@ from typing import Dict, Any, Optional, List, Union, Tuple
 import numpy as np
 import uuid
 from datetime import datetime
-import base64
 
 # Local imports
 from visualization.plotting.plot_2d import plot_function_2d, plot_multiple_functions_2d
@@ -159,10 +158,6 @@ class VisualizationAgent:
             expressions = parameters.get("expressions")
             if not expressions:
                 return {"success": False, "error": "Missing required parameter: expressions"}
-            
-            # Ensure expressions is a list
-            if not isinstance(expressions, list):
-                expressions = [expressions]
                 
             # Handle optional parameters
             labels = parameters.get("labels")
@@ -203,12 +198,7 @@ class VisualizationAgent:
             return result
             
         except Exception as e:
-            import traceback
-            return {
-                "success": False, 
-                "error": f"Error in multiple 2D function plotting: {str(e)}",
-                "traceback": traceback.format_exc()
-            }
+            return {"success": False, "error": f"Error in multiple 2D function plotting: {str(e)}"}
     
     def _plot_3d_function(self, parameters: Dict[str, Any]) -> Dict[str, Any]:
         """Plot a 3D function."""
@@ -424,113 +414,3 @@ class VisualizationAgent:
             },
             "supported_formats": [self.default_format, "svg", "pdf"]
         }
-
-    def generate_visualization(
-        self, 
-        expression: Union[str, List[str]], 
-        viz_type: str = "plot",
-        parameters: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, Any]:
-        """
-        Generate a visualization based on the expression and type.
-        
-        Args:
-            expression: Mathematical expression or list of expressions to visualize
-            viz_type: Type of visualization ('plot', 'multi_plot', 'surface', etc.)
-            parameters: Additional parameters for the visualization
-            
-        Returns:
-            Dictionary with visualization results including base64 image data
-        """
-        if parameters is None:
-            parameters = {}
-            
-        try:
-            # Map the viz_type to the internal visualization types
-            viz_type_mapping = {
-                "plot": "function_2d",
-                "multi_plot": "functions_2d",
-                "surface": "function_3d",
-                "parametric": "parametric_3d",
-                "histogram": "histogram",
-                "scatter": "scatter"
-            }
-            
-            internal_type = viz_type_mapping.get(viz_type)
-            if not internal_type:
-                return {
-                    "success": False,
-                    "error": f"Unsupported visualization type: {viz_type}",
-                    "supported_types": list(viz_type_mapping.keys())
-                }
-                
-            # Prepare parameters based on visualization type
-            if internal_type == "function_2d":
-                # Single 2D function
-                viz_params = {
-                    "expression": expression,
-                    **parameters
-                }
-                result = self._plot_2d_function(viz_params)
-                
-            elif internal_type == "functions_2d":
-                # Multiple 2D functions
-                viz_params = {
-                    "expressions": expression if isinstance(expression, list) else [expression],
-                    **parameters
-                }
-                result = self._plot_multiple_2d_functions(viz_params)
-                
-            elif internal_type == "function_3d":
-                # 3D surface plot
-                viz_params = {
-                    "expression": expression,
-                    **parameters
-                }
-                result = self._plot_3d_function(viz_params)
-                
-            elif internal_type == "parametric_3d":
-                # 3D parametric plot
-                viz_params = {
-                    "expression": expression,
-                    **parameters
-                }
-                result = self._plot_parametric_3d(viz_params)
-                
-            elif internal_type == "histogram":
-                # Histogram
-                viz_params = {
-                    "data": expression,
-                    **parameters
-                }
-                result = self._plot_histogram(viz_params)
-                
-            elif internal_type == "scatter":
-                # Scatter plot
-                viz_params = {
-                    "data": expression,
-                    **parameters
-                }
-                result = self._plot_scatter(viz_params)
-            
-            # Process the result to ensure it contains image_data
-            if result.get("success", False):
-                # If we have base64 image, use it as image_data
-                if "base64_image" in result:
-                    result["image_data"] = result["base64_image"]
-                    
-                # If we have a file path, read the file and encode as base64
-                elif "file_path" in result and os.path.exists(result["file_path"]):
-                    with open(result["file_path"], "rb") as f:
-                        file_data = f.read()
-                        result["image_data"] = base64.b64encode(file_data).decode('utf-8')
-            
-            return result
-            
-        except Exception as e:
-            import traceback
-            return {
-                "success": False,
-                "error": f"Failed to generate visualization: {str(e)}",
-                "traceback": traceback.format_exc()
-            }

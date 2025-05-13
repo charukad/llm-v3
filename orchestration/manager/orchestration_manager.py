@@ -591,43 +591,6 @@ class OrchestrationManager:
             except Exception as e:
                 logger.error(f"Error in workflow subscription callback: {str(e)}")
 
-    async def shutdown(self):
-        """Shutdown the orchestration manager gracefully."""
-        logger.info("Shutting down orchestration manager")
-        
-        # Cancel any active workflows
-        for workflow_id in list(self.active_workflows.keys()):
-            try:
-                await self.cancel_workflow(workflow_id)
-            except Exception as e:
-                logger.error(f"Error canceling workflow {workflow_id} during shutdown: {e}")
-        
-        # Clear all workflow futures
-        for future in self.workflow_futures.values():
-            if not future.done():
-                future.cancel()
-        
-        # Clear collections
-        self.active_workflows.clear()
-        self.workflow_futures.clear()
-        self.workflow_subscription_callbacks.clear()
-        
-        # Unregister from message bus
-        try:
-            if self.message_bus and hasattr(self.message_bus, 'remove_message_listener'):
-                self.message_bus.remove_message_listener(
-                    MessageType.STATUS_UPDATE,
-                    self._handle_status_update
-                )
-                
-            # Close connection to message bus if connected
-            if self.message_bus and self.message_bus.connection and hasattr(self.message_bus, 'close'):
-                await self.message_bus.close()
-        except Exception as e:
-            logger.error(f"Error unregistering message listener: {e}")
-            
-        logger.info("Orchestration manager shutdown completed")
-
 
 # Create a singleton instance
 _orchestration_manager_instance = None

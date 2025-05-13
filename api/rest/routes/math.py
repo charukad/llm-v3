@@ -6,13 +6,12 @@ This module provides the API endpoints for mathematical operations.
 
 import logging
 from typing import Dict, Any, Optional, List
-
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, UploadFile, File, Form
 from pydantic import BaseModel
 import uuid
 import os
 from datetime import datetime
-import requests
+from core.agent.llm_agent import CoreLLMAgent
 
 logger = logging.getLogger(__name__)
 
@@ -32,28 +31,96 @@ class MathResponse(BaseModel):
     status: str = "processing"
     message: str = "Query is being processed"
 
+class MathQueryResult(BaseModel):
+    """Response model for math query results."""
+    workflow_id: str
+    query: str
+    response: str
+    status: str = "completed"
+    duration_ms: float = 0
+
+# Store for workflow results
+math_workflow_results = {}
+
+# Create LLM agent instance
+llm_agent = CoreLLMAgent()
+
 # Dependency for getting system components
-# These would be initialized at application startup in a real implementation
 async def get_orchestration_manager():
     """Get the orchestration manager instance."""
-    # Placeholder for real implementation
-    return {"start_workflow": lambda *args, **kwargs: str(uuid.uuid4())}
+    # Our simple implementation that uses the CoreLLMAgent directly
+    def start_workflow(workflow_type: str, initial_data: Dict[str, Any], **kwargs):
+        workflow_id = str(uuid.uuid4())
+        
+        # Process the request in a background task
+        if workflow_type == "math_problem_solving":
+            # Start a background task to process this
+            query = initial_data.get("query", "")
+            BackgroundTasks().add_task(process_math_query, workflow_id, query)
+            
+        return workflow_id
+    
+    return {"start_workflow": start_workflow}
 
 async def get_conversation_repository():
     """Get the conversation repository instance."""
-    # Placeholder for real implementation
+    # Simple implementation that tracks conversations
     return {
         "create_conversation": lambda *args, **kwargs: str(uuid.uuid4()),
         "add_interaction": lambda *args, **kwargs: str(uuid.uuid4())
     }
+
+# Background task for processing math queries
+def process_math_query(workflow_id: str, query: str):
+    """Process a math query in the background using the LLM agent."""
+    try:
+        logger.info(f"Processing math query: {query} (workflow_id: {workflow_id})")
+        
+        # Generate response from LLM
+        start_time = datetime.now()
+        result = llm_agent.generate_response(query)
+        end_time = datetime.now()
+        
+        # Calculate duration
+        duration_ms = (end_time - start_time).total_seconds() * 1000
+        
+        # Store the result
+        if result.get("success", False):
+            math_workflow_results[workflow_id] = {
+                "workflow_id": workflow_id,
+                "query": query,
+                "response": result.get("response", ""),
+                "status": "completed",
+                "duration_ms": duration_ms
+            }
+        else:
+            math_workflow_results[workflow_id] = {
+                "workflow_id": workflow_id,
+                "query": query,
+                "response": f"Error: {result.get('error', 'Unknown error')}",
+                "status": "failed",
+                "duration_ms": duration_ms
+            }
+        
+        logger.info(f"Math query processed in {duration_ms:.2f}ms (workflow_id: {workflow_id})")
+        
+    except Exception as e:
+        logger.error(f"Error processing math query: {e}")
+        math_workflow_results[workflow_id] = {
+            "workflow_id": workflow_id,
+            "query": query,
+            "response": f"Error: {str(e)}",
+            "status": "failed",
+            "duration_ms": 0
+        }
 
 # Routes
 @router.post("/query", response_model=MathResponse)
 async def math_query(
     request: MathQueryRequest,
     background_tasks: BackgroundTasks,
-    orchestration_manager=Depends(get_orchestration_manager),
-    conversation_repo=Depends(get_conversation_repository)
+    orchestration_manager: Any = Depends(get_orchestration_manager),
+    conversation_repo: Any = Depends(get_conversation_repository)
 ):
     """
     Process a mathematical query.
@@ -83,38 +150,14 @@ async def math_query(
             system_response={"status": "processing"}
         )
         
-        # Register the workflow with our new workflow system
-        try:
-            # Try to use the workflow API directly
-            workflow_response = requests.post(
-                "http://localhost:8000/workflow/register",
-                params={"query": request.query}
-            )
-            
-            if workflow_response.status_code == 200:
-                workflow_id = workflow_response.json()["workflow_id"]
-            else:
-                # Fallback to traditional workflow creation
-                workflow_id = orchestration_manager["start_workflow"](
-                    workflow_type="math_problem_solving",
-                    initial_data={
-                        "query": request.query,
-                        "conversation_id": conversation_id,
-                        "interaction_id": interaction_id,
-                        "user_id": request.user_id
-                    }
-                )
-        except Exception as e:
-            logger.warning(f"Could not register with workflow API: {e}")
-            # Fallback to traditional workflow creation
-        workflow_id = orchestration_manager["start_workflow"](
-            workflow_type="math_problem_solving",
-            initial_data={
-                "query": request.query,
-                "conversation_id": conversation_id,
-                "interaction_id": interaction_id,
-                "user_id": request.user_id
-            }
+        # Start math problem solving workflow
+        workflow_id = str(uuid.uuid4())
+        
+        # Process in background task
+        background_tasks.add_task(
+            process_math_query,
+            workflow_id,
+            request.query
         )
         
         # Return response with workflow ID for tracking
@@ -128,69 +171,34 @@ async def math_query(
         logger.error(f"Error processing math query: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/handwritten", response_model=MathResponse)
-async def handwritten_math(
-    background_tasks: BackgroundTasks,
-    file: UploadFile = File(...),
-    orchestration_manager=Depends(get_orchestration_manager),
-    conversation_repo=Depends(get_conversation_repository),
-    conversation_id: Optional[str] = Form(None),
-    user_id: Optional[str] = Form(None)
-):
+@router.get("/query/result/{workflow_id}", response_model=MathQueryResult)
+async def get_math_query_result(workflow_id: str):
     """
-    Process a handwritten mathematical expression.
+    Get the result of a math query by workflow ID.
     
     Args:
-        background_tasks: Background task manager
-        file: Uploaded image file with handwritten math
-        orchestration_manager: Orchestration manager instance
-        conversation_repo: Conversation repository instance
-        conversation_id: Optional conversation ID
-        user_id: Optional user ID
+        workflow_id: ID of the workflow to retrieve
         
     Returns:
-        Response with workflow ID for tracking
+        Result of the math query
     """
-    try:
-        # Save the uploaded file
-        file_path = f"/tmp/{uuid.uuid4()}{os.path.splitext(file.filename)[1]}"
-        contents = await file.read()
-        
-        with open(file_path, "wb") as f:
-            f.write(contents)
-        
-        # Create conversation if needed
-        if not conversation_id:
-            conversation_id = conversation_repo["create_conversation"](
-                user_id=user_id or "anonymous",
-                title=f"Handwritten Math {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
-            )
-        
-        # Add user interaction
-        interaction_id = conversation_repo["add_interaction"](
-            conversation_id=conversation_id,
-            user_input={"type": "image", "filename": file.filename},
-            system_response={"status": "processing"}
-        )
-        
-        # Start handwriting recognition workflow
-        workflow_id = orchestration_manager["start_workflow"](
-            workflow_type="handwriting_recognition",
-            initial_data={
-                "image_path": file_path,
-                "conversation_id": conversation_id,
-                "interaction_id": interaction_id,
-                "user_id": user_id
-            }
-        )
-        
-        # Return response with workflow ID for tracking
-        return MathResponse(
+    # Check if the result exists
+    if workflow_id not in math_workflow_results:
+        # Check if it's still processing
+        return MathQueryResult(
             workflow_id=workflow_id,
+            query="",
+            response="",
             status="processing",
-            message="Your handwritten expression is being processed"
+            duration_ms=0
         )
     
-    except Exception as e:
-        logger.error(f"Error processing handwritten math: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+    # Return the result
+    result = math_workflow_results[workflow_id]
+    return MathQueryResult(
+        workflow_id=result["workflow_id"],
+        query=result["query"],
+        response=result["response"],
+        status=result["status"],
+        duration_ms=result["duration_ms"]
+    )

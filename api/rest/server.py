@@ -14,6 +14,7 @@ import uvicorn
 from .routes import math, multimodal
 from api.websocket.server import websocket_router
 from api.rest.routes.visualization import router as visualization_router
+from api.rest.routes.nlp_visualization import router as nlp_visualization_router
 from .system_init import initialize_system
 
 # Configure logging
@@ -54,6 +55,7 @@ app.include_router(math.router)
 app.include_router(multimodal.router)
 app.include_router(websocket_router)
 app.include_router(visualization_router)
+app.include_router(nlp_visualization_router)
 
 @app.get("/")
 async def root():

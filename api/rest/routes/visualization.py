@@ -4,6 +4,7 @@ from typing import Dict, Any, List, Optional
 import os
 import json
 import uuid
+import numpy as np
 
 from visualization.agent.viz_agent import VisualizationAgent
 from visualization.agent.advanced_viz_agent import AdvancedVisualizationAgent
@@ -26,6 +27,24 @@ viz_agent = VisualizationAgent(base_config)
 advanced_viz_agent = AdvancedVisualizationAgent(base_config)
 viz_selector = VisualizationSelector()
 viz_repository = VisualizationRepository()
+
+# Add numpy type conversion function
+def convert_numpy_types(obj):
+    """Convert numpy types to Python native types for JSON serialization."""
+    if isinstance(obj, np.integer):
+        return int(obj)
+    elif isinstance(obj, np.floating):
+        return float(obj)
+    elif isinstance(obj, np.ndarray):
+        return obj.tolist()
+    elif isinstance(obj, list):
+        return [convert_numpy_types(item) for item in obj]
+    elif isinstance(obj, dict):
+        return {k: convert_numpy_types(v) for k, v in obj.items()}
+    elif isinstance(obj, tuple):
+        return tuple(convert_numpy_types(item) for item in obj)
+    else:
+        return obj
 
 @router.post("/generate")
 async def generate_visualization(
@@ -62,6 +81,9 @@ async def generate_visualization(
         
         # Process the message
         result = agent.process_message(message)
+        
+        # Convert any numpy types in the result
+        result = convert_numpy_types(result)
         
         # Add interaction ID if provided and storing to database
         if interaction_id and "file_path" in result and result.get("success", False):

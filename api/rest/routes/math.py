@@ -112,7 +112,7 @@ def process_math_query(workflow_id: str, query: str):
             "response": f"Error: {str(e)}",
             "status": "failed",
             "duration_ms": 0
-        }
+    }
 
 # Routes
 @router.post("/query", response_model=MathResponse)
